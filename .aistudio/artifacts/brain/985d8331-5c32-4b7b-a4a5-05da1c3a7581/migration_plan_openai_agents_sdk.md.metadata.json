@@ -1,0 +1,5 @@
+{
+  "summary":  "Comprehensive architectural assessment and scoped migration plan for transitioning Turbocharger / Factory Workspace from direct Responses API to the OpenAI Agents SDK. Covers workflow mapping, boundary definitions, agent handoff architecture, guardrails, tracing, rollback strategy, and validation checklist.",
+  "updatedAt":  "2026-11-10T21:24:13.695810105Z",
+  "userFacing":  true
+}

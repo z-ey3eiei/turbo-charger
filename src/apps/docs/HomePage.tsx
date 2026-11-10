@@ -1,6 +1,7 @@
 import React, { useEffect, useState, type ReactNode } from "react";
 import { Check, Copy } from "lucide-react";
 import { RemoteCacheGauge } from "./graphics/remote-cache-gauge";
+import { SmoothMetallicGauge } from "./graphics/SmoothMetallicGauge";
 import {
   AgentSkillsVisual,
   MonorepoVisual,
@@ -298,20 +299,33 @@ export function HomePage({
             Turborepo is the build system for coding agents. Developers, CI, and
             agents never do the same work twice.
           </p>
-          <InteractiveCommandPrompt
-            className="items-start mt-6"
-            tabs={[
-              { id: "humans", label: "For humans", command: "npm i turbo" },
-              {
-                id: "agents",
-                label: "For agents",
-                command: "npx skills add vercel/turborepo",
-              },
-            ]}
-          />
+          <div className="flex flex-wrap items-center gap-3 mt-6">
+            <InteractiveCommandPrompt
+              tabs={[
+                {
+                  id: "turbocharger",
+                  label: "Turbocharger SDK",
+                  command: "npm i -g turbo-charger",
+                },
+                { id: "humans", label: "Turborepo CLI", command: "npm i turbo" },
+                {
+                  id: "agents",
+                  label: "Coding Agents",
+                  command: "npx skills add vercel/turborepo",
+                },
+              ]}
+            />
+            <button
+              type="button"
+              onClick={() => onNavigate("factory")}
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+            >
+              <span>⚡ Open Factory Sandboxes (OpenAI SDK)</span>
+            </button>
+          </div>
         </div>
-        <div className="relative order-first mx-auto flex min-h-56 w-full items-center justify-center pt-6 lg:order-last lg:col-span-5 lg:min-h-80 lg:pt-0">
-          <RemoteCacheGauge />
+        <div className="relative order-first mx-auto flex min-h-56 w-full items-center justify-center pt-4 lg:order-last lg:col-span-5 lg:min-h-80 lg:pt-0">
+          <SmoothMetallicGauge className="w-full max-w-[460px]" />
         </div>
       </section>
 

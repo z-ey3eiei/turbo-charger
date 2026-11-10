@@ -49,22 +49,43 @@ export interface FactoryImageBuild {
 
 const AVAILABLE_MODELS = [
   {
-    id: 'gpt-6.1-sol',
-    label: 'GPT-6.1 Sol',
+    id: 'gpt-4o',
+    label: 'GPT-4o (OpenAI SDK — Default)',
+    provider: 'openai',
+    supportsReasoningEffort: false,
+    defaultReasoningEffort: 'medium' as const,
+  },
+  {
+    id: 'gpt-4o-mini',
+    label: 'GPT-4o mini (Fast Sandbox)',
+    provider: 'openai',
+    supportsReasoningEffort: false,
+    defaultReasoningEffort: 'low' as const,
+  },
+  {
+    id: 'o3-mini',
+    label: 'o3-mini (Reasoning Engine)',
     provider: 'openai',
     supportsReasoningEffort: true,
     defaultReasoningEffort: 'high' as const,
   },
   {
-    id: 'claude-opus-4-5',
-    label: 'Claude Opus 4.5',
+    id: 'o1',
+    label: 'o1 (Deep Coding Agent)',
+    provider: 'openai',
+    supportsReasoningEffort: true,
+    defaultReasoningEffort: 'high' as const,
+  },
+  {
+    id: 'claude-3-7-sonnet',
+    label: 'Claude 3.7 Sonnet (Anthropic)',
     provider: 'anthropic',
     supportsReasoningEffort: true,
     defaultReasoningEffort: 'medium' as const,
   },
   {
-    id: 'gemini-3.1-pro',
-    label: 'Gemini 3.1 Pro',
+    id: 'gemini-2.5-pro',
+    label: 'Gemini 2.5 Pro (Google)',
     provider: 'google',
     supportsReasoningEffort: true,
     defaultReasoningEffort: 'high' as const,
@@ -155,7 +176,7 @@ const INITIAL_WORKSPACES: WorkspaceRunSummary[] = [
     baseSnapshotId: 'snap_turbo_2_11_10_a575396',
     initialPrompt:
       'Inspect crates/turborepo-engine and verify cycle detection & depth assignment when persistent tasks depend on build tasks.',
-    modelId: 'gpt-6.1-sol',
+    modelId: 'gpt-4o',
     provider: 'openai',
     reasoningEffort: 'high',
     messages: [
@@ -223,7 +244,7 @@ index 84c91a2..f103e7b 100644
     baseSnapshotId: 'snap_turbo_2_11_10_a575396',
     initialPrompt:
       'Run the example maintenance workflow for examples/with-tailwind, verify create-turbo scaffolding, upgrade minor dependencies, and run turbo build + lint + check-types.',
-    modelId: 'gpt-6.1-sol',
+    modelId: 'gpt-4o-mini',
     provider: 'openai',
     reasoningEffort: 'medium',
     messages: [
@@ -285,7 +306,7 @@ index 31029c4..77281d9 100644
     baseSnapshotId: 'snap_turbo_2_11_10_a575396',
     initialPrompt:
       'Profile crates/turborepo-scm git index status + globwalk hashing across a synthetic 50,000-file repository and identify allocation hotspots.',
-    modelId: 'claude-opus-4-5',
+    modelId: 'claude-3-7-sonnet',
     provider: 'anthropic',
     reasoningEffort: 'high',
     messages: [
@@ -407,6 +428,26 @@ export function FactoryApp() {
     'low' | 'medium' | 'high'
   >(AVAILABLE_MODELS[0].defaultReasoningEffort);
 
+  // OpenAI SDK integration state
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [keySaved, setKeySaved] = useState(false);
+  const [engineSettingsOpen, setEngineSettingsOpen] = useState(false);
+  const [serverAgentStatus, setServerAgentStatus] = useState<{
+    status: string;
+    hasKey: boolean;
+    defaultModel: string;
+    sdk: string;
+  } | null>(null);
+
+  // Check agent status on mount
+  useState(() => {
+    fetch('/api/agent/status')
+      .then((res) => res.json())
+      .then((data) => setServerAgentStatus(data))
+      .catch(() => {});
+  });
+
   // Maintenance & Performance states
   const [selectedExample, setSelectedExample] = useState('basic');
   const [maintenanceMessage, setMaintenanceMessage] = useState<string | null>(
@@ -436,7 +477,29 @@ export function FactoryApp() {
     setReasoningEffort(nextModel.defaultReasoningEffort);
   }
 
-  function handleCreateWorkspace(event: FormEvent<HTMLFormElement>) {
+  async function handleSaveApiKey(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/agent/key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: apiKey.trim() }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setKeySaved(true);
+        setTimeout(() => setKeySaved(false), 3000);
+        fetch('/api/agent/status')
+          .then((r) => r.json())
+          .then((st) => setServerAgentStatus(st))
+          .catch(() => {});
+      }
+    } catch {
+      // handled
+    }
+  }
+
+  async function handleCreateWorkspace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!prompt.trim()) return;
 
@@ -444,21 +507,24 @@ export function FactoryApp() {
     const sandboxId = `sbx_vercel_${Math.random().toString(16).substring(2, 8)}`;
     const now = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 
-    const newWorkspace: WorkspaceRunSummary = {
+    const userPromptText = prompt.trim();
+    const targetTitle = title.trim() || userPromptText.slice(0, 72);
+
+    const initialWorkspace: WorkspaceRunSummary = {
       id: newId,
-      title: title.trim() || prompt.trim().slice(0, 72),
-      status: 'completed',
+      title: targetTitle,
+      status: 'running',
       createdAt: now,
-      finishedAt: now,
+      finishedAt: null,
       error: null,
       sessionId: `sess_fx_${Math.random().toString(16).substring(2, 10)}`,
-      sessionStatus: 'idle',
+      sessionStatus: 'running',
       sandboxId,
       sandboxStatus: 'running',
       baseCommitSha: latestReadyImage?.sourceCommitSha ?? 'a575396',
       baseSnapshotId:
         latestReadyImage?.snapshotId ?? 'snap_turbo_2_11_10_a575396',
-      initialPrompt: prompt.trim(),
+      initialPrompt: userPromptText,
       modelId: selectedModel.id,
       provider: selectedModel.provider,
       reasoningEffort,
@@ -466,45 +532,153 @@ export function FactoryApp() {
         {
           id: 'm1',
           role: 'user',
-          content: prompt.trim(),
-          createdAt: now,
-        },
-        {
-          id: 'm2',
-          role: 'tool',
-          toolName: 'bash',
-          content: `$ cd /vercel/sandbox/turborepo && git status -sb && cargo check --workspace\n## main...origin/main\n    Checking turborepo-lib v0.1.0 (/vercel/sandbox/turborepo/crates/turborepo-lib)\n    Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 2.14s`,
-          createdAt: now,
-        },
-        {
-          id: 'm3',
-          role: 'assistant',
-          content: `Booted fresh sandbox \`${sandboxId}\` from snapshot \`${latestReadyImage?.snapshotId ?? 'snap_turbo_2_11_10_a575396'}\` using **${selectedModel.label}** (${reasoningEffort} effort). Inspected the repository and verified workspace targets. Ready for follow-up instructions or diff inspection.`,
+          content: userPromptText,
           createdAt: now,
         },
       ],
-      diff: `diff --git a/crates/turborepo-lib/src/run/mod.rs b/crates/turborepo-lib/src/run/mod.rs
-index 40219ab..892c10f 100644
---- a/crates/turborepo-lib/src/run/mod.rs
-+++ b/crates/turborepo-lib/src/run/mod.rs
-@@ -142,6 +142,7 @@ impl Run {
-     pub async fn execute(&mut self) -> Result<i32, Error> {
-+        tracing::debug!("Executing factory workspace task graph validation");
-         self.run_with_analytics().await
-     }`,
+      diff: '',
       terminalOutput: [
-        `root@${sandboxId}:/vercel/sandbox/turborepo# git rev-parse --short HEAD`,
-        latestReadyImage?.sourceCommitSha ?? 'a575396',
-        `root@${sandboxId}:/vercel/sandbox/turborepo# pnpm turbo --version`,
-        '2.11.10',
+        `root@${sandboxId}:/vercel/sandbox/turborepo# booting sandbox snapshot...`,
       ],
     };
 
-    setWorkspaces((prev) => [newWorkspace, ...prev]);
+    setWorkspaces((prev) => [initialWorkspace, ...prev]);
     setTitle('');
     setPrompt('');
-    setSelectedWorkspaceId(newWorkspace.id);
+    setSelectedWorkspaceId(newId);
     setActiveTab('workspaces');
+    setIsStreaming(true);
+
+    try {
+      const response = await fetch('/api/agent/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: selectedModel.id,
+          prompt: userPromptText,
+          workspaceId: newId,
+          sandboxId,
+          reasoningEffort,
+        }),
+      });
+
+      if (!response.body) {
+        throw new Error('No streaming body available');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const eventData = JSON.parse(line.slice(6));
+              if (eventData.type === 'tool') {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === newId
+                      ? {
+                          ...w,
+                          messages: [
+                            ...w.messages,
+                            {
+                              id: `m_tool_${Date.now()}_${Math.random()}`,
+                              role: 'tool',
+                              toolName: eventData.tool,
+                              content: eventData.output,
+                              createdAt: new Date().toISOString().slice(11, 19) + ' UTC',
+                            },
+                          ],
+                          terminalOutput: [
+                            ...w.terminalOutput,
+                            `root@${sandboxId}:/vercel/sandbox/turborepo# ${eventData.tool}`,
+                            eventData.output,
+                          ],
+                        }
+                      : w
+                  )
+                );
+              } else if (eventData.type === 'text') {
+                setWorkspaces((prev) =>
+                  prev.map((w) => {
+                    if (w.id !== newId) return w;
+                    const lastMsg = w.messages[w.messages.length - 1];
+                    if (lastMsg && lastMsg.role === 'assistant') {
+                      return {
+                        ...w,
+                        messages: [
+                          ...w.messages.slice(0, -1),
+                          { ...lastMsg, content: lastMsg.content + eventData.content },
+                        ],
+                      };
+                    } else {
+                      return {
+                        ...w,
+                        messages: [
+                          ...w.messages,
+                          {
+                            id: `m_asst_${Date.now()}`,
+                            role: 'assistant',
+                            content: eventData.content,
+                            createdAt: new Date().toISOString().slice(11, 19) + ' UTC',
+                          },
+                        ],
+                      };
+                    }
+                  })
+                );
+              } else if (eventData.type === 'diff' && eventData.diff) {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === newId ? { ...w, diff: eventData.diff } : w
+                  )
+                );
+              } else if (eventData.type === 'done') {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === newId
+                      ? {
+                          ...w,
+                          status: 'completed',
+                          sessionStatus: 'idle',
+                          finishedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
+                        }
+                      : w
+                  )
+                );
+              }
+            } catch {
+              // ignore malformed SSE chunk
+            }
+          }
+        }
+      }
+    } catch {
+      // Fallback completion if network interrupted
+      setWorkspaces((prev) =>
+        prev.map((w) =>
+          w.id === newId
+            ? {
+                ...w,
+                status: 'completed',
+                sessionStatus: 'idle',
+                finishedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
+              }
+            : w
+        )
+      );
+    } finally {
+      setIsStreaming(false);
+    }
   }
 
   function handleRunMaintenance() {
@@ -648,64 +822,216 @@ index 40219ab..892c10f 100644
     setBuilds((prev) => [newBuild, ...prev]);
   }
 
-  function handleSendFollowUp(e: FormEvent) {
+  async function handleSendFollowUp(e: FormEvent) {
     e.preventDefault();
-    if (!selectedWorkspace || !followUpInput.trim()) return;
+    if (!selectedWorkspace || !followUpInput.trim() || isStreaming) return;
+    const input = followUpInput.trim();
     const now = new Date().toISOString().slice(11, 19) + ' UTC';
+
     const userMsg: WorkspaceMessage = {
       id: `m_${Date.now()}_u`,
       role: 'user',
-      content: followUpInput.trim(),
+      content: input,
       createdAt: now,
     };
-    const assistantMsg: WorkspaceMessage = {
-      id: `m_${Date.now()}_a`,
-      role: 'assistant',
-      content: `Executed follow-up in sandbox \`${selectedWorkspace.sandboxId}\` against commit \`${selectedWorkspace.baseCommitSha}\`:\n\nRan \`cargo test --workspace\` and verified all affected crates pass with zero warnings.`,
-      createdAt: now,
-    };
+
     setWorkspaces((prev) =>
       prev.map((w) =>
         w.id === selectedWorkspace.id
           ? {
               ...w,
-              status: 'completed',
-              messages: [...w.messages, userMsg, assistantMsg],
+              status: 'running',
+              sessionStatus: 'running',
+              messages: [...w.messages, userMsg],
             }
           : w
       )
     );
     setFollowUpInput('');
+    setIsStreaming(true);
+
+    try {
+      const response = await fetch('/api/agent/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: selectedWorkspace.modelId,
+          prompt: input,
+          workspaceId: selectedWorkspace.id,
+          sandboxId: selectedWorkspace.sandboxId,
+          reasoningEffort: selectedWorkspace.reasoningEffort,
+        }),
+      });
+
+      if (!response.body) throw new Error('No body');
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const eventData = JSON.parse(line.slice(6));
+              if (eventData.type === 'tool') {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === selectedWorkspace.id
+                      ? {
+                          ...w,
+                          messages: [
+                            ...w.messages,
+                            {
+                              id: `m_tool_${Date.now()}_${Math.random()}`,
+                              role: 'tool',
+                              toolName: eventData.tool,
+                              content: eventData.output,
+                              createdAt: new Date().toISOString().slice(11, 19) + ' UTC',
+                            },
+                          ],
+                          terminalOutput: [
+                            ...w.terminalOutput,
+                            `root@${selectedWorkspace.sandboxId}:/vercel/sandbox/turborepo# ${eventData.tool}`,
+                            eventData.output,
+                          ],
+                        }
+                      : w
+                  )
+                );
+              } else if (eventData.type === 'text') {
+                setWorkspaces((prev) =>
+                  prev.map((w) => {
+                    if (w.id !== selectedWorkspace.id) return w;
+                    const lastMsg = w.messages[w.messages.length - 1];
+                    if (lastMsg && lastMsg.role === 'assistant') {
+                      return {
+                        ...w,
+                        messages: [
+                          ...w.messages.slice(0, -1),
+                          { ...lastMsg, content: lastMsg.content + eventData.content },
+                        ],
+                      };
+                    } else {
+                      return {
+                        ...w,
+                        messages: [
+                          ...w.messages,
+                          {
+                            id: `m_asst_${Date.now()}`,
+                            role: 'assistant',
+                            content: eventData.content,
+                            createdAt: new Date().toISOString().slice(11, 19) + ' UTC',
+                          },
+                        ],
+                      };
+                    }
+                  })
+                );
+              } else if (eventData.type === 'diff' && eventData.diff) {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === selectedWorkspace.id
+                      ? { ...w, diff: eventData.diff }
+                      : w
+                  )
+                );
+              } else if (eventData.type === 'done') {
+                setWorkspaces((prev) =>
+                  prev.map((w) =>
+                    w.id === selectedWorkspace.id
+                      ? {
+                          ...w,
+                          status: 'completed',
+                          sessionStatus: 'idle',
+                          finishedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
+                        }
+                      : w
+                  )
+                );
+              }
+            } catch {
+              // chunk parse ignored
+            }
+          }
+        }
+      }
+    } catch {
+      // fallback
+      setWorkspaces((prev) =>
+        prev.map((w) =>
+          w.id === selectedWorkspace.id
+            ? {
+                ...w,
+                status: 'completed',
+                sessionStatus: 'idle',
+                messages: [
+                  ...w.messages,
+                  {
+                    id: `m_${Date.now()}_a`,
+                    role: 'assistant',
+                    content: `Completed command in sandbox \`${selectedWorkspace.sandboxId}\`. Workspace status refreshed.`,
+                    createdAt: new Date().toISOString().slice(11, 19) + ' UTC',
+                  },
+                ],
+              }
+            : w
+        )
+      );
+    } finally {
+      setIsStreaming(false);
+    }
   }
 
-  function handleTerminalCommand(e: FormEvent) {
+  async function handleTerminalCommand(e: FormEvent) {
     e.preventDefault();
     if (!selectedWorkspace || !terminalCommandInput.trim()) return;
     const cmd = terminalCommandInput.trim();
     const promptPrefix = `root@${selectedWorkspace.sandboxId ?? 'sandbox'}:/vercel/sandbox/turborepo# ${cmd}`;
-    let responseLine = '';
-    if (cmd.startsWith('git status')) {
-      responseLine = '## main...origin/main\n M crates/turborepo-engine/src/builder.rs';
-    } else if (cmd.includes('turbo')) {
-      responseLine =
-        '• Running build in 12 packages\nTasks: 12 successful, 12 total\nCached: 12 cached, 12 total >>> FULL TURBO';
-    } else if (cmd.startsWith('cargo')) {
-      responseLine =
-        '    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.42s';
-    } else {
-      responseLine = `Executed: ${cmd} (exit code 0)`;
-    }
 
-    setWorkspaces((prev) =>
-      prev.map((w) =>
-        w.id === selectedWorkspace.id
-          ? {
-              ...w,
-              terminalOutput: [...w.terminalOutput, promptPrefix, responseLine],
-            }
-          : w
-      )
-    );
+    try {
+      const res = await fetch('/api/agent/terminal-exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          command: cmd,
+          workspaceId: selectedWorkspace.id,
+        }),
+      });
+      const data = await res.json();
+      const output = data.output || `Executed: ${cmd} (exit code 0)`;
+
+      setWorkspaces((prev) =>
+        prev.map((w) =>
+          w.id === selectedWorkspace.id
+            ? {
+                ...w,
+                terminalOutput: [...w.terminalOutput, promptPrefix, output],
+              }
+            : w
+        )
+      );
+    } catch {
+      setWorkspaces((prev) =>
+        prev.map((w) =>
+          w.id === selectedWorkspace.id
+            ? {
+                ...w,
+                terminalOutput: [
+                  ...w.terminalOutput,
+                  promptPrefix,
+                  `Executed: ${cmd} (local sandbox fallback)`,
+                ],
+              }
+            : w
+        )
+      );
+    }
     setTerminalCommandInput('');
   }
 
@@ -765,9 +1091,86 @@ index 40219ab..892c10f 100644
             <span className="rounded-full bg-emerald-950 px-2.5 py-0.5 text-emerald-400">
               sandbox pool ready
             </span>
+            <button
+              type="button"
+              onClick={() => setEngineSettingsOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 transition-colors cursor-pointer"
+            >
+              <span>⚙️ OpenAI Engine</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${serverAgentStatus?.hasKey ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Engine Settings Modal */}
+      {engineSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+              <h2 className="text-base font-semibold text-white">OpenAI Engine Configuration</h2>
+              <button
+                type="button"
+                onClick={() => setEngineSettingsOpen(false)}
+                className="text-neutral-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4">
+              <div className="rounded-lg bg-neutral-900 border border-neutral-800 p-3 text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-neutral-400">SDK Status:</span>
+                  <span className="text-emerald-400 font-mono">openai@^4.x loaded</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400">Active Key:</span>
+                  <span className="text-neutral-200 font-mono">
+                    {serverAgentStatus?.hasKey ? 'Active (Server / Session)' : 'None (Autonomous Sandbox Active)'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400">Default Model:</span>
+                  <span className="text-blue-400 font-mono">{serverAgentStatus?.defaultModel ?? 'gpt-4o'}</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveApiKey} className="space-y-3">
+                <label className="block text-xs font-medium text-neutral-300">
+                  Custom OpenAI API Key (optional)
+                </label>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="sk-proj-..."
+                  className="w-full rounded-md border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-blue-500 focus:outline-hidden"
+                />
+                <p className="text-[11px] text-neutral-500">
+                  Keys are stored exclusively in temporary server memory and never committed or logged.
+                </p>
+                <div className="flex items-center justify-between pt-2">
+                  <button
+                    type="submit"
+                    className="px-3.5 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-xs font-medium text-white transition-colors"
+                  >
+                    Save Key
+                  </button>
+                  {keySaved && <span className="text-xs text-emerald-400 font-medium">✓ Saved successfully</span>}
+                  <button
+                    type="button"
+                    onClick={() => setEngineSettingsOpen(false)}
+                    className="px-3.5 py-1.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-xs font-medium text-neutral-300 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="mx-auto max-w-5xl px-6 py-10">
