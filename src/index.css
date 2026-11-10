@@ -1,0 +1,470 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *, .dark-theme, .dark-theme *));
+
+:root {
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-geist-sans: var(--font-sans);
+  --font-geist-mono: var(--font-mono);
+
+  /* Geist Design System Tokens (Light Mode) */
+  --ds-background-100: #ffffff;
+  --ds-background-200: #fafafa;
+  --ds-gray-100: #f2f2f2;
+  --ds-gray-200: #ebebeb;
+  --ds-gray-300: #e6e6e6;
+  --ds-gray-400: #eaeaea;
+  --ds-gray-500: #c9c9c9;
+  --ds-gray-600: #a8a8a8;
+  --ds-gray-700: #8f8f8f;
+  --ds-gray-800: #7d7d7d;
+  --ds-gray-900: #666666;
+  --ds-gray-1000: #171717;
+  --ds-gray-alpha-300: rgba(0, 0, 0, 0.08);
+  --ds-gray-alpha-400: rgba(0, 0, 0, 0.12);
+  --ds-gray-alpha-500: rgba(0, 0, 0, 0.16);
+  --ds-gray-alpha-600: rgba(0, 0, 0, 0.24);
+  --ds-shadow-border-small: 0 0 0 1px rgba(0, 0, 0, 0.08), 0px 2px 2px rgba(0, 0, 0, 0.04);
+
+  /* shadcn / apps/docs & apps/factory tokens */
+  --background: #ffffff;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #0068d6;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent: #f2f2f2;
+  --accent-foreground: #171717;
+  --destructive: #e5484d;
+  --warning: #ffb224;
+  --success: #30a46c;
+  --border: #e6e6e6;
+  --input: #e6e6e6;
+  --ring: #8f8f8f;
+}
+
+.dark,
+.dark-theme {
+  /* Geist Design System Tokens (Dark Mode) */
+  --ds-background-100: #0a0a0a;
+  --ds-background-200: #000000;
+  --ds-gray-100: #1a1a1a;
+  --ds-gray-200: #1f1f1f;
+  --ds-gray-300: #292929;
+  --ds-gray-400: #2e2e2e;
+  --ds-gray-500: #454545;
+  --ds-gray-600: #878787;
+  --ds-gray-700: #8f8f8f;
+  --ds-gray-800: #7d7d7d;
+  --ds-gray-900: #a1a1a1;
+  --ds-gray-1000: #ededed;
+  --ds-gray-alpha-300: rgba(255, 255, 255, 0.09);
+  --ds-gray-alpha-400: rgba(255, 255, 255, 0.14);
+  --ds-gray-alpha-500: rgba(255, 255, 255, 0.22);
+  --ds-gray-alpha-600: rgba(255, 255, 255, 0.32);
+  --ds-shadow-border-small: 0 0 0 1px rgba(255, 255, 255, 0.14), 0px 2px 4px rgba(0, 0, 0, 0.4);
+
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #111111;
+  --card-foreground: #ededed;
+  --popover: #111111;
+  --popover-foreground: #ededed;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ededed;
+  --muted: #171717;
+  --muted-foreground: #a1a1a1;
+  --accent: #1f1f1f;
+  --accent-foreground: #ededed;
+  --destructive: #f87171;
+  --warning: #f59e0b;
+  --success: #34d399;
+  --border: #262626;
+  --input: #262626;
+  --ring: #525252;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-background-100: var(--ds-background-100);
+  --color-background-200: var(--ds-background-200);
+  --color-gray-100: var(--ds-gray-100);
+  --color-gray-200: var(--ds-gray-200);
+  --color-gray-300: var(--ds-gray-300);
+  --color-gray-400: var(--ds-gray-400);
+  --color-gray-500: var(--ds-gray-500);
+  --color-gray-600: var(--ds-gray-600);
+  --color-gray-700: var(--ds-gray-700);
+  --color-gray-800: var(--ds-gray-800);
+  --color-gray-900: var(--ds-gray-900);
+  --color-gray-1000: var(--ds-gray-1000);
+  --color-green-300: rgba(16, 185, 129, 0.15);
+  --color-green-900: #10b981;
+  --color-green-1000: #059669;
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--ds-background-200);
+    color: var(--ds-gray-1000);
+  }
+}
+
+/* Geist Typography Utilities from @vercel/geistdocs */
+.text-heading-64 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--ds-gray-1000);
+}
+
+.text-heading-56 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--ds-gray-1000);
+}
+
+.text-heading-48 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: var(--ds-gray-1000);
+}
+
+.text-heading-40 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: var(--ds-gray-1000);
+}
+
+.text-heading-32 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: var(--ds-gray-1000);
+}
+
+.text-copy-20 {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.text-copy-18 {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.text-copy-16 {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.text-copy-13 {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.text-copy-14-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-label-14-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-label-13-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Exact turbo-flow.css from apps/docs/app/[lang]/devtools/turbo-flow.css */
+.turbo-flow.react-flow {
+  --bg-color: rgb(255, 255, 255);
+  --text-color: rgb(23, 23, 23);
+  --node-inner-bg: rgb(250, 250, 250);
+  --node-border-radius: 10px;
+  --node-box-shadow:
+    10px 0 15px rgba(42, 138, 246, 0.15), -10px 0 15px rgba(233, 42, 103, 0.15);
+  --control-border-color: #95679e;
+  --control-hover-bg: rgb(240, 240, 240);
+  --subtitle-color: #666;
+  --minimap-mask-color: rgba(255, 255, 255, 0.8);
+  --attribution-bg: rgba(200, 200, 200, 0.2);
+
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.dark .turbo-flow.react-flow,
+.dark-theme .turbo-flow.react-flow {
+  --bg-color: rgb(17, 17, 17);
+  --text-color: rgb(243, 244, 246);
+  --node-inner-bg: rgb(17, 17, 17);
+  --node-box-shadow:
+    10px 0 15px rgba(42, 138, 246, 0.3), -10px 0 15px rgba(233, 42, 103, 0.3);
+  --control-hover-bg: rgb(37, 37, 37);
+  --subtitle-color: #777;
+  --minimap-mask-color: rgba(17, 17, 17, 0.8);
+}
+
+.turbo-flow .react-flow__node-turbo {
+  border-radius: var(--node-border-radius);
+  display: flex;
+  height: 70px;
+  min-width: 150px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  box-shadow: var(--node-box-shadow);
+}
+
+.turbo-flow .react-flow__node-turbo .wrapper {
+  overflow: hidden;
+  display: flex;
+  padding: 2px;
+  position: relative;
+  border-radius: var(--node-border-radius);
+  flex-grow: 1;
+}
+
+.turbo-flow .gradient:before {
+  content: "";
+  position: absolute;
+  padding-bottom: calc(100% * 1.41421356237);
+  width: calc(100% * 1.41421356237);
+  background: conic-gradient(
+    from -160deg at 50% 50%,
+    #e92a67 0deg,
+    #a853ba 120deg,
+    #2a8af6 240deg,
+    #e92a67 360deg
+  );
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 100%;
+}
+
+.turbo-flow .react-flow__node-turbo.selected .wrapper.gradient:before {
+  content: "";
+  background: conic-gradient(
+    from -160deg at 50% 50%,
+    #e92a67 0deg,
+    #a853ba 120deg,
+    #2a8af6 240deg,
+    rgba(42, 138, 246, 0) 360deg
+  );
+  animation: spinner 4s linear infinite;
+  transform: translate(-50%, -50%) rotate(0deg);
+  z-index: -1;
+}
+
+@keyframes spinner {
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+.turbo-flow .react-flow__node-turbo .inner {
+  background: var(--node-inner-bg);
+  padding: 16px 20px;
+  border-radius: var(--node-border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  position: relative;
+}
+
+.turbo-flow .react-flow__node-turbo .icon {
+  margin-right: 8px;
+}
+
+.turbo-flow .react-flow__node-turbo .body {
+  display: flex;
+  align-items: center;
+}
+
+.turbo-flow .react-flow__node-turbo .title {
+  font-size: 15px;
+  margin-bottom: 2px;
+  line-height: 1.1;
+}
+
+.turbo-flow .react-flow__node-turbo .subtitle {
+  font-size: 12px;
+  color: var(--subtitle-color);
+}
+
+.turbo-flow .react-flow__handle {
+  opacity: 0;
+}
+
+.turbo-flow .react-flow__handle.source {
+  right: -10px;
+}
+
+.turbo-flow .react-flow__handle.target {
+  left: -10px;
+}
+
+.turbo-flow .react-flow__node:focus {
+  outline: none;
+}
+
+.turbo-flow .react-flow__edge .react-flow__edge-path {
+  stroke: url(#edge-gradient);
+  stroke-width: 2;
+  stroke-opacity: 0.75;
+}
+
+.turbo-flow .react-flow__controls button {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--control-border-color);
+  border-bottom: none;
+}
+
+.turbo-flow .react-flow__controls button:hover {
+  background-color: var(--control-hover-bg);
+}
+
+.turbo-flow .react-flow__controls button:first-child {
+  border-radius: 5px 5px 0 0;
+}
+
+.turbo-flow .react-flow__controls button:last-child {
+  border-bottom: 1px solid var(--control-border-color);
+  border-radius: 0 0 5px 5px;
+}
+
+.turbo-flow .react-flow__controls button path {
+  fill: var(--text-color);
+}
+
+.turbo-flow .react-flow__controls button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.turbo-flow .react-flow__controls button rect {
+  stroke: var(--text-color);
+}
+
+.turbo-flow .react-flow__attribution {
+  background: var(--attribution-bg);
+}
+
+.turbo-flow .react-flow__attribution a {
+  color: #95679e;
+}
+
+.turbo-flow .react-flow__minimap {
+  background-color: var(--bg-color);
+  border: 1px solid var(--control-border-color);
+  border-radius: 5px;
+}
+
+.turbo-flow .react-flow__minimap-mask {
+  fill: var(--minimap-mask-color);
+}
+
+.turbo-flow .react-flow__minimap-node {
+  fill: #95679e;
+  stroke: #2a8af6;
+}
+
+/* Turbocharger .sidename brand & UI/UX Resolver smooth slide animations */
+.sidename {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(110deg, #ff1e56 0%, #a853ba 48%, #0096ff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, background-position;
+}
+
+.sidename:hover {
+  background-position: right center;
+  transform: translateX(2px);
+  filter: drop-shadow(0 0 12px rgba(255, 30, 86, 0.28));
+}
+
+.slide-smooth {
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+.slide-card-hover {
+  transition:
+    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
+}
+
+.slide-card-hover:hover {
+  transform: translateY(-2px) translateX(2px);
+}
+

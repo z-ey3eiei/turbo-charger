@@ -1,0 +1,6 @@
+{
+  "name": "Turborepo v2.11.10 Workspace Studio",
+  "description": "Interactive monorepo task graph engine, turbo.json v2.11.10 configuration validator, remote cache hash simulator, boundaries auditor, and crate explorer for z-ey3eiei/Turborepo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

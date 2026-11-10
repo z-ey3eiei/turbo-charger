@@ -1,0 +1,37 @@
+{
+  "name": "@10rigin/turbo-charger",
+  "version": "1.0.2",
+  "description": "Turbocharger - High-performance CLI & Node.js SDK for Turborepo monorepo resolution, cache acceleration, DAG diagnostics, and automated workflows.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "turbo-charger": "bin/turbocharger.js",
+    "turbocharger": "bin/turbocharger.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node bin/turbocharger.js",
+    "test": "node bin/turbocharger.js --version"
+  },
+  "keywords": [
+    "turbocharger",
+    "turborepo",
+    "monorepo",
+    "cache",
+    "dag",
+    "resolver",
+    "task-graph",
+    "build-tools",
+    "cli"
+  ],
+  "author": "Turbocharger Team",
+  "license": "MIT",
+  "dependencies": {},
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "package.json"
+  ]
+}
