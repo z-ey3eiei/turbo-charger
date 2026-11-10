@@ -23,6 +23,9 @@ import { HomePage } from './apps/docs/HomePage';
 import { DevtoolsPage } from './apps/docs/devtools/DevtoolsPage';
 import { ShowcasePage } from './apps/docs/ShowcasePage';
 import { FactoryApp } from './apps/factory/FactoryApp';
+import { AboutPage } from './apps/docs/AboutPage';
+import { ContactPage } from './apps/docs/ContactPage';
+import { PrivacyPage } from './apps/docs/PrivacyPage';
 import {
   TurborepoLogo,
   VercelLogo,
@@ -45,7 +48,10 @@ type AppRoute =
   | 'devtools'
   | 'factory'
   | 'showcase'
-  | 'docs';
+  | 'docs'
+  | 'about'
+  | 'contact'
+  | 'privacy';
 type StudioSubTab = 'crates-docs' | 'config' | 'boundaries' | 'runner';
 
 const ROUTE_ORDER: AppRoute[] = [
@@ -56,6 +62,9 @@ const ROUTE_ORDER: AppRoute[] = [
   'devtools',
   'factory',
   'showcase',
+  'about',
+  'contact',
+  'privacy',
 ];
 
 const SMOOTH_SLIDE_TRANSITION = {
@@ -66,7 +75,21 @@ const SMOOTH_SLIDE_TRANSITION = {
 };
 
 export default function App() {
-  const [route, setRoute] = useState<AppRoute>('home');
+  const [route, setRoute] = useState<AppRoute>(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname.replace(/^\//, '');
+      if (p === 'about') return 'about';
+      if (p === 'contact') return 'contact';
+      if (p === 'privacy') return 'privacy';
+      if (p === 'resolver') return 'resolver';
+      if (p === 'server-tools') return 'server-tools';
+      if (p === 'devtools') return 'devtools';
+      if (p === 'factory') return 'factory';
+      if (p === 'showcase') return 'showcase';
+      if (p === 'docs') return 'docs';
+    }
+    return 'home';
+  });
   const [prevRouteIdx, setPrevRouteIdx] = useState<number>(0);
   const [studioTab, setStudioTab] = useState<StudioSubTab>('crates-docs');
   const [isDark, setIsDark] = useState<boolean>(true);
@@ -181,10 +204,20 @@ export default function App() {
                 ? 'factory'
                 : target === 'docs'
                   ? 'docs'
-                  : 'home';
+                  : target === 'about'
+                    ? 'about'
+                    : target === 'contact'
+                      ? 'contact'
+                      : target === 'privacy'
+                        ? 'privacy'
+                        : 'home';
     setPrevRouteIdx(ROUTE_ORDER.indexOf(route));
     setRoute(nextRoute);
     setIsSideNavOpen(false);
+    if (typeof window !== 'undefined' && window.history?.pushState) {
+      const url = nextRoute === 'home' ? '/' : `/${nextRoute}`;
+      window.history.pushState({}, '', url);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -693,83 +726,132 @@ export default function App() {
                 </div>
               </div>
             )}
+
+            {route === 'about' && <AboutPage onNavigate={handleNavigate} />}
+
+            {route === 'contact' && <ContactPage onNavigate={handleNavigate} />}
+
+            {route === 'privacy' && <PrivacyPage onNavigate={handleNavigate} />}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Footer matching apps/docs + .sidename Turbocharger */}
+      {/* Footer matching apps/docs + .sidename Turbocharger with Trust Anchor & Machine Links */}
       {route !== 'devtools' && (
         <footer className="border-t border-gray-200 dark:border-neutral-800 bg-background-100 py-8 px-6 text-xs text-gray-900">
-          <div className="mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <a
-                href="https://vercel.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-80 hover:opacity-100 transition-opacity"
-                title="Vercel"
-              >
-                <VercelLogo className="h-3.5 w-auto" />
-              </a>
-              <span className="text-gray-400">/</span>
-              <TurborepoLogo className="h-4 w-auto" />
-              <span className="sidename text-sm">Turbocharger</span>
-              <span className="font-mono text-gray-700">
-                v2.11.10 (commit a575396)
-              </span>
+          <div className="mx-auto flex max-w-[1080px] flex-col gap-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://vercel.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="opacity-80 hover:opacity-100 transition-opacity"
+                  title="Vercel"
+                >
+                  <VercelLogo className="h-3.5 w-auto" />
+                </a>
+                <span className="text-gray-400">/</span>
+                <TurborepoLogo className="h-4 w-auto" />
+                <span className="sidename text-sm font-semibold text-gray-1000">Turbocharger</span>
+                <span className="font-mono text-gray-700">
+                  v2.11.10 (commit a575396)
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-5">
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('home')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Home
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('resolver')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Resolver
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('server-tools')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Server Tools
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('devtools')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Devtools
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('factory')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Factory (fx)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('showcase')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Showcase
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('docs')}
+                  className="hover:text-gray-1000 cursor-pointer"
+                >
+                  Docs
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-5">
-              <button
-                type="button"
-                onClick={() => handleNavigate('home')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                Home (apps/docs)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('resolver')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                <span className="sidename text-xs mr-1">Turbocharger</span>
-                Resolver
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('server-tools')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                Server Tools (Node.js)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('devtools')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                Devtools (apps/docs/devtools)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('factory')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                Factory (apps/factory)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('showcase')}
-                className="hover:text-gray-1000 cursor-pointer"
-              >
-                Showcase (apps/docs/showcase)
-              </button>
-              <a
-                href="https://github.com/z-ey3eiei/Turborepo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-1000"
-              >
-                GitHub
-              </a>
+
+            <div className="flex flex-wrap items-center justify-between border-t border-gray-200 dark:border-neutral-800/60 pt-4 text-[11px] text-gray-500 gap-3">
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('about')}
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline cursor-pointer"
+                >
+                  About Us
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('contact')}
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline cursor-pointer"
+                >
+                  Contact
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('privacy')}
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline cursor-pointer"
+                >
+                  Privacy Policy
+                </button>
+                <a
+                  href="/sitemap.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline"
+                >
+                  Sitemap XML
+                </a>
+                <a
+                  href="/llms.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded text-blue-400"
+                >
+                  llms.txt
+                </a>
+              </div>
+              <p>&copy; 2026 Turbocharger Team &bull; MIT License &bull; Contact: devstack.sdk@gmail.com</p>
             </div>
           </div>
         </footer>

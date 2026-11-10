@@ -1,0 +1,71 @@
+# Turbocharger — Monorepo Acceleration & Remote Cache Engine
+> High-performance CLI & Node.js Engine for Turborepo Monorepo Acceleration, Deterministic DAG Resolution, Boundaries Auditing, and Remote Cache Diagnostics.
+
+## When to Use This
+
+Reach for Turbocharger when you or an AI agent need to:
+1. **Analyze or Resolve Turborepo Task Graphs**: Determine topological execution order, task waves, dependency critical paths, and cycle detection across monorepo packages and crates.
+2. **Compute Deterministic Remote Cache Hashes**: Calculate 64-bit FNV/SHA content hashes for any task (e.g. `build`, `lint`, `test`) to simulate or verify Vercel Remote Cache artifacts before CI execution.
+3. **Audit Workspace Tag Boundaries**: Verify that packages do not violate architectural boundaries (e.g., UI packages importing server/app code, internal packages leaking into shared boundaries).
+4. **Inspect turbo.json Configurations**: Validate `turbo.json` v2.11 schema, detect deprecated options, and verify env var passthroughs (`globalEnv`, `task.env`, `inputs`, `outputs`).
+5. **Manage NPM Publishing & Package Lookups**: Dry-run package publishes, inspect registry metadata, and audit dependencies.
+
+Do NOT reach for Turbocharger for:
+- Non-monorepo single-file scripts with no task dependencies.
+- Native binary compilation outside Node.js / Rust cargo toolchains.
+
+## How an Agent Should Call Turbocharger
+
+### 1. HTTP REST API
+Turbocharger exposes an HTTP REST API on the base URL (local: `http://localhost:3000`, production: `https://turbocharger-iota.vercel.app`):
+- `GET /api/server/status`: Inspect server health, node version, memory, and registered tools.
+- `GET /api/package/turbo-charger`: Retrieve package metadata, binaries, and available CLI subcommands.
+- `POST /api/package/turbo-charger/run`: Execute a simulated or real CLI command on the server.
+  - Body: `{"command": "resolve" | "hash" | "audit" | "diag", "args": ["@repo/ui/button"]}`
+  - Returns: `{ "success": true, "command": "...", "stdout": "...", "exitCode": 0 }`
+- `POST /api/npm/audit`: Audit a list of packages against dependency vulnerability policies.
+  - Body: `{"packages": ["turbo", "next", "react", "@repo/ui"]}`
+- `POST /api/npm/publish-dryrun`: Verify tarball pack list and package manifest before publishing.
+
+### 2. CLI Tool (npx or global npm)
+```bash
+# Resolve workspace package, export path, or crate DAG
+npx turbo-charger resolve @repo/ui/button
+
+# Compute deterministic remote cache digest
+npx turbo-charger hash build web
+
+# Audit workspace boundary tags
+npx turbo-charger audit
+
+# Run full Turborepo monorepo health diagnostics
+npx turbo-charger diag
+```
+
+### 3. Node.js SDK
+```javascript
+import {
+  resolveTaskGraph,
+  calculateRemoteCacheHash,
+  auditBoundaries,
+  runTurboDiagnostics,
+} from 'turbo-charger';
+
+const res = resolveTaskGraph('@repo/ui/button');
+const hash = calculateRemoteCacheHash('build', 'web');
+const audit = auditBoundaries();
+const diag = runTurboDiagnostics();
+```
+
+## Available Documentation & Endpoints
+- Homepage: https://turbocharger-iota.vercel.app/
+- About: https://turbocharger-iota.vercel.app/about
+- Contact: https://turbocharger-iota.vercel.app/contact
+- Privacy Policy: https://turbocharger-iota.vercel.app/privacy
+- Full Documentation: https://turbocharger-iota.vercel.app/docs
+- Resolver Studio: https://turbocharger-iota.vercel.app/resolver
+- Devtools Graph: https://turbocharger-iota.vercel.app/devtools
+- Factory Image: https://turbocharger-iota.vercel.app/factory
+- Showcase: https://turbocharger-iota.vercel.app/showcase
+- Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml
+- Full LLM Reference: https://turbocharger-iota.vercel.app/llms-full.txt

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml

@@ -578,6 +578,201 @@ app.get('/api/server/logs', (_req: Request, res: Response) => {
 });
 
 // ----------------------------------------------------
+// Agent Readiness & Content Negotiation Specifications
+// ----------------------------------------------------
+
+const HOMEPAGE_MARKDOWN = `# Turbocharger: High-Performance Turborepo Monorepo Accelerator
+
+Turbocharger is an open-source CLI & Node.js engine for Turborepo monorepo resolution, cache acceleration, DAG diagnostics, and automated workflows.
+
+## Key Capabilities
+- **Sub-Millisecond Workspace Resolution**: Resolves package scopes, tsconfig paths, and crate dependencies in < 0.4ms.
+- **Deterministic Remote Cache Hashing**: 64-bit FNV/SHA simulation matching Vercel Remote Cache.
+- **Architectural Tag Boundaries**: Enforces strict boundary isolation policies across monorepo layers.
+- **Integrated Server Tools**: Dry-run package publishes, npm identity verification, and security scanning.
+
+## CLI Usage
+\`\`\`bash
+npm install -g turbo-charger
+npx turbo-charger resolve @repo/ui/button
+npx turbo-charger hash build web
+npx turbo-charger audit
+npx turbo-charger diag
+\`\`\`
+
+## Node.js SDK
+\`\`\`javascript
+import {
+  resolveTaskGraph,
+  calculateRemoteCacheHash,
+  auditBoundaries,
+  runTurboDiagnostics,
+} from 'turbo-charger';
+
+const res = resolveTaskGraph('@repo/ui/button');
+const hash = calculateRemoteCacheHash('build', 'web');
+const audit = auditBoundaries();
+const diag = runTurboDiagnostics();
+\`\`\`
+
+## Navigation & Resources
+- Documentation: https://turbocharger-iota.vercel.app/docs
+- Resolver Studio: https://turbocharger-iota.vercel.app/resolver
+- Server Tools: https://turbocharger-iota.vercel.app/server-tools
+- About Us: https://turbocharger-iota.vercel.app/about
+- Contact Us: https://turbocharger-iota.vercel.app/contact
+- Privacy Policy: https://turbocharger-iota.vercel.app/privacy
+- XML Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml
+- Agent Guidance (llms.txt): https://turbocharger-iota.vercel.app/llms.txt
+`;
+
+const ABOUT_MARKDOWN = `# About Turbocharger
+
+Turbocharger is an enterprise-grade developer toolchain and acceleration platform engineered for high-velocity Turborepo monorepos. Our mission is to eliminate build latency, enforce architectural integrity across multi-package codebases, and give engineering teams real-time visibility into their dependency graphs.
+
+## Core Architecture
+Built with performance-first principles, Turbocharger combines Rust crate topological parsing with high-speed Node.js runtime analyzers. It integrates directly with Turborepo v2.11+ configuration schemas, remote caching infrastructures, and monorepo boundaries.
+
+## Key Capabilities
+1. **Deterministic Task Graph Synthesis**: Simulates DAG dependency resolution, wave-based topological sorting, and cycle detection.
+2. **Vercel Remote Cache Hash Engine**: Accurately computes and simulates 64-bit FNV/SHA artifact signatures to maximize CI cache hit ratios.
+3. **Boundaries and Isolation Auditor**: Enforces dependency boundaries and package tagging rules to prevent unwanted coupling.
+4. **Interactive Studio & CLI**: Provides both a rich browser-based visualization studio and an executable command-line interface (\`turbo-charger\`).
+
+## Open Source & Community
+Turbocharger is open-source under the MIT license, created by the Turbocharger Team for developers who demand sub-millisecond build tooling.
+
+- Documentation: https://turbocharger-iota.vercel.app/docs
+- Contact: https://turbocharger-iota.vercel.app/contact
+- Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml
+- llms.txt: https://turbocharger-iota.vercel.app/llms.txt
+`;
+
+const CONTACT_MARKDOWN = `# Contact Turbocharger Team
+
+We are dedicated to supporting developers, platform engineering teams, and open-source contributors working with Turborepo monorepos and the Turbocharger engine. Reach out to us for technical assistance, partnership opportunities, or feedback.
+
+## Direct Contact Information
+- **Support Email**: devstack.sdk@gmail.com
+- **Office Location**: 799 Market St, San Francisco, CA 94103, United States
+- **Hours of Operation**: Monday to Friday, 09:00 - 18:00 PST (Pacific Standard Time)
+- **GitHub Repository**: https://github.com/z-ey3eiei/turbo-charger
+
+## Bug Reports & Technical Inquiries
+For bug reports, feature requests, or unexpected behavior in the task graph resolver or remote cache hash simulator:
+1. Check the interactive Devtools and Resolver at https://turbocharger-iota.vercel.app/resolver
+2. Run \`turbo-charger diag\` via CLI to gather environment logs.
+3. Submit an issue or email us directly with your \`turbo.json\` and reproduction monorepo preset.
+
+## Enterprise Architecture
+Platform engineering teams migrating to Turborepo or configuring high-throughput Vercel Remote Caching can contact our architecture advisors via devstack.sdk@gmail.com.
+
+- About Us: https://turbocharger-iota.vercel.app/about
+- Privacy Policy: https://turbocharger-iota.vercel.app/privacy
+- XML Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml
+- llms.txt: https://turbocharger-iota.vercel.app/llms.txt
+`;
+
+const PRIVACY_MARKDOWN = `# Privacy Policy for Turbocharger
+
+Last updated: November 10, 2026
+
+Turbocharger ("we", "our", or "us") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard information when you use the Turbocharger website (https://turbocharger-iota.vercel.app) and the Turbocharger CLI/Node.js SDK.
+
+## Information We Do Not Collect
+- **Zero Source Code Ingestion**: Turbocharger processes your monorepo graphs, task configurations, and file hashes locally within your own runtime or browser session. We do NOT store, upload, or index your private source code.
+- **No Third-Party Advertising Trackers**: We do not use third-party advertising cookies or sell telemetry data to data brokers.
+
+## Information We May Process
+- **Server Health & Diagnostic Logs**: In-memory ephemeral logs regarding local server startup, tool execution latency, and simulated dry-run outputs. These logs reside in memory and reset upon server restart.
+- **NPM Authentication Tokens**: When provided in the Server Tools interface for registry authentication, NPM tokens are handled strictly in server memory and sanitized with four-character masking. Tokens are never transmitted to external services other than the official registry (\`registry.npmjs.org\`).
+- **Contact Inquiries**: If you contact us via email (devstack.sdk@gmail.com), we use your email address solely to answer your questions and provide technical assistance.
+
+## Security Standards
+We implement strict industry-standard security practices, including TLS encryption, server-side credential isolation, and strict Content Security Policies.
+
+- Contact Email: devstack.sdk@gmail.com
+- Physical Address: 799 Market St, San Francisco, CA 94103, USA
+- XML Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml
+- llms.txt: https://turbocharger-iota.vercel.app/llms.txt
+`;
+
+// Static files in public
+app.use(express.static(path.resolve(__dirname, 'public')));
+
+app.get('/sitemap.xml', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.sendFile(path.resolve(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/robots.txt', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.sendFile(path.resolve(__dirname, 'public', 'robots.txt'));
+});
+
+app.get('/llms.txt', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.sendFile(path.resolve(__dirname, 'public', 'llms.txt'));
+});
+
+app.get('/llms-full.txt', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.sendFile(path.resolve(__dirname, 'public', 'llms-full.txt'));
+});
+
+// Markdown content negotiation & Agent 404 handler middleware
+app.use((req: Request, res: Response, next) => {
+  const acceptHeader = req.headers.accept || '';
+  const wantsMarkdown = acceptHeader.includes('text/markdown');
+  const cleanPath = req.path.toLowerCase().replace(/\/$/, '') || '/';
+
+  // Always set Vary: Accept for proper proxy and CDN caching
+  res.setHeader('Vary', 'Accept');
+
+  // Explicit Ora probe check or agent 404 probe detection
+  if (cleanPath.startsWith('/__ora-') || cleanPath.includes('404-probe')) {
+    res.status(404);
+    if (wantsMarkdown) {
+      res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+      return res.send(
+        `# 404 Not Found\n\nThe requested probe path \`${req.path}\` does not exist on Turbocharger.\n\nPlease refer to our official resources:\n- Documentation: https://turbocharger-iota.vercel.app/docs\n- XML Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml\n- LLM Agent Instructions: https://turbocharger-iota.vercel.app/llms.txt\n- Homepage: https://turbocharger-iota.vercel.app/\n`
+      );
+    }
+    return res.status(404).send('Not Found');
+  }
+
+  // Handle Markdown content negotiation on known pages
+  if (wantsMarkdown) {
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    if (cleanPath === '/' || cleanPath === '/index.html') {
+      return res.send(HOMEPAGE_MARKDOWN);
+    }
+    if (cleanPath === '/about') {
+      return res.send(ABOUT_MARKDOWN);
+    }
+    if (cleanPath === '/contact') {
+      return res.send(CONTACT_MARKDOWN);
+    }
+    if (cleanPath === '/privacy') {
+      return res.send(PRIVACY_MARKDOWN);
+    }
+    if (cleanPath === '/docs' || cleanPath === '/resolver' || cleanPath === '/server-tools' || cleanPath === '/devtools' || cleanPath === '/factory' || cleanPath === '/showcase') {
+      return res.send(HOMEPAGE_MARKDOWN);
+    }
+
+    // Any other nonexistent path requested with Accept: text/markdown -> 404 with markdown body
+    if (!req.path.startsWith('/api/') && !req.path.includes('.')) {
+      res.status(404);
+      return res.send(
+        `# 404 Not Found\n\nThe requested path \`${req.path}\` was not found on Turbocharger.\n\nHere are helpful resources to navigate:\n- Documentation: https://turbocharger-iota.vercel.app/docs\n- XML Sitemap: https://turbocharger-iota.vercel.app/sitemap.xml\n- Agent Instructions: https://turbocharger-iota.vercel.app/llms.txt\n- Homepage: https://turbocharger-iota.vercel.app/\n`
+      );
+    }
+  }
+
+  next();
+});
+
+// ----------------------------------------------------
 // Setup Vite in Development or Static files in Production
 // ----------------------------------------------------
 async function startServer() {

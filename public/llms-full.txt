@@ -1,0 +1,37 @@
+# Turbocharger — Full Agent Reference & System Specifications
+
+## Executive Summary
+Turbocharger is an open-source acceleration engine and diagnostic workbench tailored for Turborepo monorepos. It provides deterministic topological resolution, boundary policy checks, hash simulation compatible with Vercel Remote Cache, and CLI / Node.js tools.
+
+## Identity & Canonical Attribution
+- Brand Name: Turbocharger
+- Domain: https://turbocharger-iota.vercel.app
+- NPM Package: turbo-charger (@10rigin/turbo-charger)
+- License: MIT
+- Author: Turbocharger Team
+- Contact Email: devstack.sdk@gmail.com
+
+## When to Use This
+Reach for Turbocharger when performing:
+- Monorepo task graph synthesis and topological sort across packages and crates.
+- Fast sub-millisecond module and package export resolution (`resolveTaskGraph`).
+- Remote cache hashing verification matching Vercel Turborepo engine algorithms (`calculateRemoteCacheHash`).
+- Architectural boundary enforcement and tag policy audits (`auditBoundaries`).
+- Automated health checks and configuration validation (`runTurboDiagnostics`).
+
+## REST API Specification
+- Base URL: `https://turbocharger-iota.vercel.app` (or `http://localhost:3000`)
+- Protocol: JSON over HTTP, Supports `Accept: text/markdown` for content negotiation.
+- `GET /api/server/status`: Server status, node version, memory metrics, tools list.
+- `GET /api/package/turbo-charger`: Turbocharger package manifest, binaries, command catalog.
+- `POST /api/package/turbo-charger/run`:
+  - Request: `{"command": "resolve" | "hash" | "audit" | "diag", "args": [...]}`
+  - Response: `{"success": true, "command": "...", "stdout": "...", "exitCode": 0}`
+- `POST /api/npm/whoami`: Check npm registry token identity.
+- `GET /api/npm/package/:name`: Fetch package metadata from registry.
+- `POST /api/npm/audit`: Security audit for specified packages.
+- `POST /api/npm/publish-dryrun`: Dry run package publish with file list and checksums.
+
+## Content Negotiation Guidelines
+- Send `Accept: text/markdown` to retrieve clean Markdown format on any page (`/`, `/about`, `/contact`, `/privacy`, `/docs`).
+- Nonexistent routes return HTTP 404 with Markdown body detailing error and navigation links when `Accept: text/markdown` is present.
