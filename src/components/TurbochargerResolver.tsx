@@ -291,7 +291,8 @@ const SLIDE_CURVES: Record<
 > = {
   'spring-snappy': {
     label: 'Turbocharger Spring (340 / 32)',
-    cssBezier: 'spring(1, 340, 32, 0)',
+    // CSS approximation; the interactive preview uses Motion's spring physics.
+    cssBezier: 'cubic-bezier(0.22, 1, 0.36, 1)',
     description: 'Zero-overshoot physical spring tuned for instant UI/UX panel & drawer slides.',
     transition: { type: 'spring', stiffness: 340, damping: 32, mass: 0.85 },
   },
@@ -465,6 +466,7 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
   letter-spacing: -0.03em;
   background: linear-gradient(110deg, #ff1e56 0%, #a853ba 48%, #0096ff 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
   transition: transform 0.38s ${activeCurve.cssBezier};
 }
