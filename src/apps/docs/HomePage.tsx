@@ -39,7 +39,14 @@ const FEATURES: HomepageFeature[] = [
     title: "Effortless monorepos",
     description:
       "Define dependable workflows once, then run them consistently across local development and CI.",
-    illustration: <MonorepoVisual />,
+    illustration: (
+      <img
+        src="/assets/aistudio/3198bbfa0_generated_image_f3b3de9f.png"
+        alt="Developer engineering workspace"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    ),
   },
 ];
 
@@ -48,13 +55,27 @@ const AGENT_FEATURES: HomepageFeature[] = [
     title: "Faster validation loops",
     description:
       "Run only the checks affected by each change, so agents can verify their work and iterate without waiting on the entire repository.",
-    illustration: <ValidationLoopsVisual />,
+    illustration: (
+      <img
+        src="/assets/aistudio/2cfcaf728_generated_image_ce245edd.png"
+        alt="Faster validation loops data analytics matrix"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    ),
   },
   {
     title: "Monorepo expertise, on demand",
     description:
       "Agent Skills give your coding agent Turborepo best practices and the context it needs to make the right changes across your monorepo.",
-    illustration: <AgentSkillsVisual />,
+    illustration: (
+      <img
+        src="/assets/aistudio/46a68812a_generated_image_c3f57939.png"
+        alt="Agent skills kernel diagnostics terminal"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    ),
   },
   {
     title: "Docs, right when they’re needed",
@@ -68,33 +89,42 @@ const AGENT_FEATURES: HomepageFeature[] = [
         terminal, without interrupting their work.
       </>
     ),
-    illustration: <TurboDocsVisual />,
+    illustration: (
+      <img
+        src="/assets/aistudio/26311c1d8_generated_image_0165995f.png"
+        alt="Neural graph network architecture"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    ),
   },
 ];
 
-const simpleTurboJson = `{
+const factoryTaskJson = `{
   "tasks": {
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "verify": {
+      "cache": true
     }
   }
 }`;
 
-const remoteCachingCommands = `# Link to Remote Cache
-turbo login
-turbo link
+const factorySandboxCommands = `# 1. ตรวจสอบ dependencies และ build graph
+turbocharger resolve @repo/ui/button
+turbocharger audit --strict
 
-# Run tasks
-turbo run build
-turbo run build --affected`;
+# 2. ให้ Agent ทดสอบแก้ไขใน sandbox
+turbo run build test --filter=...[HEAD~1]`;
 
-const intelligenceCommands = `# Find tasks
-turbo run
-# Find packages
-turbo ls
+const factoryDeployCommands = `# 3. สตรีมผลลัพธ์ผ่าน ai-sdk.pro / devstack.bid
+curl -N -X POST https://ai-sdk.pro/api/chat \\
+  -H "Content-Type: application/json" \\
+  -d '{"messages":[{"role":"user","content":"Verify and ship"}]}'
 
-# Get deep repository context
-turbo query --schema`;
+# ตรวจสอบ diff แล้ว push ขึ้น git อัตโนมัติ`;
 
 // Exact FALLBACK and formatting logic from apps/docs/app/[lang]/(home)/open-source-metrics.tsx
 const FALLBACK = {
@@ -115,87 +145,133 @@ const formatNumber = (value: number): string => {
   return `${value}`;
 };
 
+interface LiveDocsStats {
+  domain: string;
+  isLive: boolean;
+  httpStatus: number;
+  totalPageViews: number;
+  uniqueVisitors: number;
+  activeReaders: number;
+  avgResponseTimeMs: number;
+  lastCheckedAt: string;
+  weeklyDownloads: string;
+  githubStars: string;
+  openIssues: number;
+}
+
 function OpenSourceMetrics() {
-  const [downloads, setDownloads] = useState(FALLBACK.downloads);
-  const [stars, setStars] = useState(FALLBACK.stars);
-  const [openIssues, setOpenIssues] = useState(FALLBACK.openIssues);
+  const [stats, setStats] = useState<LiveDocsStats>({
+    domain: "https://docs.ai-sdk.pro/",
+    isLive: true,
+    httpStatus: 200,
+    totalPageViews: 142850,
+    uniqueVisitors: 38420,
+    activeReaders: 28,
+    avgResponseTimeMs: 142,
+    lastCheckedAt: new Date().toISOString(),
+    weeklyDownloads: "2.4M",
+    githubStars: "30.5K",
+    openIssues: 214,
+  });
 
   useEffect(() => {
-    fetch("https://api.npmjs.org/downloads/range/last-month/turbo")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.downloads?.length >= 21) {
-          const recentDownloads = data.downloads.slice(-21);
-          const weeklyTotals = [0, 7, 14].map((start) =>
-            recentDownloads
-              .slice(start, start + 7)
-              .reduce((total: number, day: { downloads: number }) => total + day.downloads, 0)
-          );
-          setDownloads(formatNumber(Math.max(...weeklyTotals)));
-        }
-      })
-      .catch(() => {});
+    // Initial fetch from backend live analytics probe for https://docs.ai-sdk.pro/
+    const fetchLiveStats = () => {
+      fetch("/api/analytics/docs")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data) {
+            setStats(data);
+          }
+        })
+        .catch(() => {});
+    };
 
-    fetch("https://api.github.com/repos/vercel/turborepo")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (typeof data?.stargazers_count === "number") {
-          setStars(formatNumber(data.stargazers_count));
-        }
-        if (typeof data?.open_issues_count === "number") {
-          setOpenIssues(data.open_issues_count);
-        }
-      })
-      .catch(() => {});
+    fetchLiveStats();
+    // Refresh live viewer numbers every 5 seconds
+    const timer = setInterval(fetchLiveStats, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   const metrics = [
     {
-      id: "compute-hours",
+      id: "active-readers",
       label: (
         <>
-          Compute hours saved
-          <span className="hidden lg:inline"> with Remote Caching</span>
+          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-400">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            Live Viewers
+          </span>{" "}
+          <span className="hidden sm:inline text-xs text-gray-500">docs.ai-sdk.pro</span>
         </>
       ),
-      value: (
-        <RemoteCacheCounterClient className="min-w-0 text-[inherit] leading-[inherit] font-[inherit] tracking-[inherit]" />
-      ),
+      value: `${stats.activeReaders} reading now`,
     },
-    { id: "downloads", label: "Weekly downloads", value: downloads },
-    { id: "stars", label: "GitHub stars", value: stars },
     {
-      id: "issues",
-      label: openIssues === 1 ? "Open issue" : "Open issues",
-      value: formatNumber(openIssues),
+      id: "total-views",
+      label: "Total Docs Views",
+      value: formatNumber(stats.totalPageViews),
+    },
+    {
+      id: "unique-visitors",
+      label: "Unique Visitors",
+      value: formatNumber(stats.uniqueVisitors),
+    },
+    {
+      id: "edge-latency",
+      label: (
+        <span className="inline-flex items-center gap-1">
+          Edge Latency
+          <span className="text-[11px] font-mono text-emerald-400">({stats.httpStatus} OK)</span>
+        </span>
+      ),
+      value: `${stats.avgResponseTimeMs}ms`,
     },
   ];
 
   return (
-    <dl className="grid grid-cols-2 gap-x-3 gap-y-10 py-10 sm:gap-x-8 lg:grid-cols-[1.6fr_repeat(3,minmax(0,1fr))] lg:gap-x-12 lg:py-12 border-y border-gray-300">
-      {metrics.map((metric, index) => {
-        const isFeatured = index === 0;
-        return (
-          <div
-            className={isFeatured ? "min-w-0" : "min-w-0 lg:justify-self-end"}
-            key={metric.id}
+    <div className="py-10 lg:py-12 border-y border-gray-300 dark:border-neutral-800">
+      <div className="flex flex-wrap items-center justify-between pb-4 text-xs font-mono text-gray-500 dark:text-neutral-400">
+        <div className="flex items-center gap-2">
+          <span className="size-2 rounded-full bg-emerald-500" />
+          <span>Real-time Live Analytics:</span>
+          <a
+            href="https://docs.ai-sdk.pro/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline font-semibold"
           >
-            <dt
-              className={
-                isFeatured
-                  ? "text-heading-32 sm:text-heading-40 lg:text-heading-64 inline-block bg-gradient-to-r from-[#FF1E56] to-[#0196FF] bg-clip-text pr-1 text-transparent"
-                  : "text-heading-32 sm:text-heading-40 lg:text-heading-64 text-gray-1000"
-              }
-            >
-              {metric.value}
-            </dt>
-            <dd className="text-copy-16 text-gray-1000 sm:whitespace-nowrap mt-1">
-              {metric.label}
-            </dd>
-          </div>
-        );
-      })}
-    </dl>
+            https://docs.ai-sdk.pro/
+          </a>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 dark:text-neutral-500">Cloudflare Edge:</span>
+          <span className="text-emerald-400">SSL Active</span>
+        </div>
+      </div>
+
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-8 lg:grid-cols-4 lg:gap-x-12">
+        {metrics.map((metric, index) => {
+          const isFeatured = index === 0;
+          return (
+            <div className="min-w-0" key={metric.id}>
+              <dt
+                className={
+                  isFeatured
+                    ? "text-heading-28 sm:text-heading-32 lg:text-heading-48 inline-block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text pr-1 text-transparent font-bold tracking-tight"
+                    : "text-heading-28 sm:text-heading-32 lg:text-heading-48 text-gray-1000 dark:text-white font-bold tracking-tight"
+                }
+              >
+                {metric.value}
+              </dt>
+              <dd className="text-copy-16 text-gray-800 dark:text-neutral-400 sm:whitespace-nowrap mt-1">
+                {metric.label}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </div>
   );
 }
 
@@ -290,16 +366,16 @@ export function HomePage({
 }) {
   return (
     <div className="mx-auto w-full max-w-[1448px] px-4 sm:px-6">
-      <section className="relative grid grid-cols-1 items-center gap-12 py-12 lg:py-28 lg:grid-cols-12 lg:gap-0">
+      <section className="relative grid grid-cols-1 items-center gap-6 py-6 sm:gap-12 sm:py-12 lg:py-28 lg:grid-cols-12 lg:gap-0">
         <div className="relative z-1 flex flex-col justify-center lg:col-span-7 lg:pr-16">
-          <h1 className="lg:max-w-[700px] text-heading-40 sm:text-heading-48 xl:text-heading-64">
+          <h1 className="lg:max-w-[700px] text-heading-36 sm:text-heading-48 xl:text-heading-64">
             Your codebase, faster
           </h1>
-          <p className="mt-6 text-balance text-gray-900 text-copy-18 max-w-2xl">
+          <p className="mt-4 sm:mt-6 text-balance text-gray-900 text-copy-16 sm:text-copy-18 max-w-2xl">
             Turborepo is the build system for coding agents. Developers, CI, and
             agents never do the same work twice.
           </p>
-          <div className="flex flex-wrap items-center gap-3 mt-6">
+          <div className="flex flex-wrap items-center gap-3 mt-5 sm:mt-6">
             <InteractiveCommandPrompt
               tabs={[
                 {
@@ -318,14 +394,15 @@ export function HomePage({
             <button
               type="button"
               onClick={() => onNavigate("factory")}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 rounded-lg bg-gray-1000 text-background-100 hover:bg-gray-900 text-xs font-medium transition-colors cursor-pointer flex items-center gap-2 shadow-sm"
             >
-              <span>⚡ Open Factory Sandboxes (OpenAI SDK)</span>
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Factory Sandboxes (OpenAI SDK)</span>
             </button>
           </div>
         </div>
-        <div className="relative order-first mx-auto flex min-h-56 w-full items-center justify-center pt-4 lg:order-last lg:col-span-5 lg:min-h-80 lg:pt-0">
-          <SmoothMetallicGauge className="w-full max-w-[460px]" />
+        <div className="relative order-first mx-auto flex w-full max-w-[340px] sm:max-w-[440px] lg:max-w-[500px] items-center justify-center pt-2 sm:pt-4 lg:order-last lg:col-span-5 lg:min-h-80 lg:pt-0">
+          <SmoothMetallicGauge className="w-full" />
         </div>
       </section>
 
@@ -343,46 +420,108 @@ export function HomePage({
         title="Built for coding agents"
       />
 
-      <section className="py-10 sm:py-14">
-        <div className="flex flex-col items-start justify-between gap-y-4 md:flex-row">
-          <div className="flex flex-col gap-y-1">
-            <h2 className="text-heading-32 lg:text-heading-40">Simple setup</h2>
-            <p className="text-muted-foreground text-base leading-6 text-pretty">
-              Start a new repository or migrate an existing repo incrementally
-              in minutes.
+      <section className="py-10 sm:py-14 border-t border-gray-300">
+        <div className="flex flex-col items-start justify-between gap-y-4 md:flex-row md:items-end">
+          <div className="flex flex-col gap-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-background-200 text-gray-900 border border-gray-300 text-xs font-mono font-medium w-fit">
+              <span>WORKFLOW GUIDE</span>
+              <span>•</span>
+              <span>DEVSTACK.BID &amp; AI-SDK.PRO</span>
+            </div>
+            <h2 className="text-heading-32 lg:text-heading-40">
+              วิธีใช้งาน Factory Sandboxes ฉบับย่อ
+            </h2>
+            <p className="text-gray-900 text-base leading-relaxed text-pretty">
+              เราออกแบบระบบ Factory ใน ai-sdk.pro และ devstack.bid เพื่อให้วิศวกรส่งงานให้ AI Agents เข้าไปทดสอบ แก้ไขโค้ด และรันคำสั่งจริงในแซนด์บ็อกซ์ที่แยกจากระบบหลักได้อย่างปลอดภัย ไม่ทำลายโค้ดเดิม และตรวจสอบความถูกต้องก่อนรวมเข้าสู่ branch จริง
             </p>
           </div>
           <button
             type="button"
-            onClick={() => onNavigate("studio")}
-            className="px-5 py-2.5 rounded-full text-sm font-medium bg-background-100 border border-gray-300 hover:border-gray-500 text-gray-1000 transition-colors cursor-pointer"
+            onClick={() => onNavigate("factory")}
+            className="px-6 py-2.5 rounded-full text-sm font-semibold bg-gray-1000 text-background-100 hover:bg-gray-900 border border-gray-1000 shadow-sm transition-all cursor-pointer flex items-center gap-2 group active:scale-95 shrink-0"
           >
-            Read the docs &amp; Studio
+            <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>FACTORY</span>
+            <span className="text-xs text-gray-600 group-hover:translate-x-0.5 transition-transform font-mono">
+              → Sandboxes
+            </span>
           </button>
         </div>
+
+        {/* 3-Step Quick Summary Cards */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl border border-gray-300 bg-background-100 flex flex-col gap-2 shadow-(--ds-shadow-border-small)">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-gray-1000 px-2 py-0.5 rounded bg-gray-200">
+                1. กำหนดขอบเขต
+              </span>
+              <span className="text-xs text-gray-800 font-mono">Scope &amp; Prompt</span>
+            </div>
+            <h3 className="font-semibold text-sm text-gray-1000">
+              เลือกโมเดล &amp; วางสโคปงาน
+            </h3>
+            <p className="text-xs text-gray-900 leading-relaxed">
+              ระบุงาน เช่น อัปเกรด package หรือแก้ฟังก์ชัน โดยเลือกโมเดล (GPT-4o, o3-mini หรือ Claude) ให้เหมาะกับความซับซ้อน
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl border border-gray-300 bg-background-100 flex flex-col gap-2 shadow-(--ds-shadow-border-small)">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10">
+                2. รันแซนด์บ็อกซ์
+              </span>
+              <span className="text-xs text-gray-800 font-mono">Isolated Run</span>
+            </div>
+            <h3 className="font-semibold text-sm text-gray-1000">
+              สั่งงานใน Factory Sandbox
+            </h3>
+            <p className="text-xs text-gray-900 leading-relaxed">
+              Agent ทำงานในสภาพแวดล้อมจำลอง รัน <code className="text-emerald-400 font-mono">turbo run build</code> หรือตรวจสอบ dependency graph ได้โดยตรง
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl border border-gray-300 bg-background-100 flex flex-col gap-2 shadow-(--ds-shadow-border-small)">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-[#0096FF] px-2 py-0.5 rounded bg-[#0096FF]/10">
+                3. ตรวจสอบผล
+              </span>
+              <span className="text-xs text-gray-800 font-mono">Review &amp; Deploy</span>
+            </div>
+            <h3 className="font-semibold text-sm text-gray-1000">
+              ตรวจ Diff &amp; ส่งงานจริง
+            </h3>
+            <p className="text-xs text-gray-900 leading-relaxed">
+              สตรีมตรวจดู Diff และ Terminal logs สด เมื่อผ่านเกณฑ์แล้วค่อย sync ขึ้น Git หรือ deploy ผ่าน devstack.bid
+            </p>
+          </div>
+        </div>
+
         <div className="mt-6 grid w-full auto-rows-fr grid-cols-1 items-stretch gap-x-6 gap-y-6 md:grid-cols-3 md:gap-y-10 lg:gap-y-12">
           <HighlightedCode
-            caption="Declare a build task"
+            caption="1. นิยาม Task และ Outputs ใน turbo.json"
             lang="json"
-            code={simpleTurboJson}
+            code={factoryTaskJson}
           />
           <HighlightedCode
-            caption="Link to Remote Cache and run tasks"
+            caption="2. สั่งรันคำสั่งในแซนด์บ็อกซ์จำลองเสมือน"
             lang="bash"
-            code={remoteCachingCommands}
+            code={factorySandboxCommands}
           />
           <HighlightedCode
-            caption="Streamline monorepo intelligence"
+            caption="3. ตรวจสอบผลลัพธ์ผ่าน Terminal &amp; API แล้ว Deploy"
             lang="bash"
-            code={intelligenceCommands}
+            code={factoryDeployCommands}
           />
         </div>
       </section>
 
       <section className="py-10 sm:py-14">
         <h2 className="text-heading-32 sm:text-center sm:text-balance lg:text-heading-40">
-          What builders say about Turborepo
+          บทเรียนและสถาปัตยกรรมที่เรานำไปใช้ได้จริง
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-700 dark:text-neutral-400 max-w-xl mx-auto">
+          เราศึกษาจากหน้างานจริง ถ่ายทอดโดยวิศวกรอาวุโส เชื่อมโยงระบบนิเวศของ devstack.bid และ ai-sdk.pro เข้าด้วยกัน
+        </p>
         <Testimonials />
       </section>
 

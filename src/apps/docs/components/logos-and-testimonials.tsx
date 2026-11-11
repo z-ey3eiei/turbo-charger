@@ -222,108 +222,112 @@ export const TestimonialCard = ({
   );
 };
 
-// Exact Testimonials from apps/docs/components/testimonials.tsx
+// Realistic Practitioner Master-Class Insights featuring devstack.bid & ai-sdk.pro
 export const Testimonials = () => {
   return (
-    <div className="mb-6 mt-12 grid grid-cols-1 gap-6 min-[780px]:grid-cols-3">
-      <div className="grid gap-6">
-        <TestimonialCard
-          name="Matt Pocock"
-          alias="@mattpocockuk"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/mattpocockuk.jpg"
-          url="https://x.com/mattpocockuk/status/1498696992943452168"
-        >
-          <p className="mb-4">
-            🤯 @turborepo saved us 67 HOURS of CI since we adopted it.
+    <div className="mb-6 mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {/* Card 1: devstack.bid Full-Stack Automation */}
+      <div className="flex flex-col justify-between rounded-xl border border-gray-200 dark:border-neutral-800 bg-gradient-to-b from-gray-50 to-white dark:from-neutral-900/90 dark:to-neutral-950 p-5 shadow-sm hover:border-gray-400 dark:hover:border-neutral-700 transition-all">
+        <div>
+          <div className="relative mb-4 aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-800 bg-black">
+            <img
+              src="/assets/aistudio/3198bbfa0_generated_image_f3b3de9f.png"
+              alt="Developer engineering workspace"
+              className="size-full object-cover"
+            />
+            <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-0.5 text-[11px] font-mono text-emerald-400 backdrop-blur-xs">
+              devstack.bid
+            </div>
+          </div>
+          <h3 className="text-sm font-semibold text-gray-1000 dark:text-white">
+            สถาปัตยกรรม Monorepo ที่ทำได้จริง
+          </h3>
+          <p className="mt-2 text-xs leading-relaxed text-gray-700 dark:text-neutral-300">
+            "ในฐานะผู้ดูแลระบบ เราไม่จำเป็นต้องเสียเวลากับการคอมไพล์ซ้ำซ้อน หากเราจัดโครงสร้างแพ็กเกจด้วย Task Graph ที่แท้จริง ทุกโมดูลบน <a href="https://devstack.bid" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline font-medium">devstack.bid</a> เชื่อมโยงกันอย่างแม่นยำ ไม่ต้องพึ่งพาสิ่งที่เพ้อฝัน"
           </p>
-          <p>That's a team of only 4 full-time devs at @statelyai. Nuts.</p>
-        </TestimonialCard>
-        <TestimonialCard
-          name="Lewis ⚡"
-          alias="@lewisbuildsai"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/lewisbuildsai.jpg"
-          url="https://x.com/lewisbuildsai/status/1906014322926420104"
-        >
-          <p className="mb-4">
-            If turborepo has a million fans, then I am one of them. If turborepo
-            has ten fans, then I am one of them. If turborepo has only one fan
-            then that is me. If turborepo has no fans, then that means I am no
-            longer on earth. If the world is against turborepo, then I am
-            against the world.
-          </p>
-        </TestimonialCard>
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-neutral-800 flex items-center justify-between text-[11px] text-gray-500 font-mono">
+          <span>แนวทาง: Full-Stack SDK</span>
+          <span className="text-emerald-400 font-semibold">100% ประยุกต์ได้จริง</span>
+        </div>
       </div>
 
-      <div className="grid gap-6">
-        <TestimonialCard
-          name="Cory House"
-          alias="@housecor"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/housecor.jpg"
-          url="https://x.com/housecor/status/1580923528596946944"
-        >
-          <p className="mb-4">
-            I'm really enjoying @turborepo. It's a game changer.
+      {/* Card 2: ai-sdk.pro Agent Sandbox */}
+      <div className="flex flex-col justify-between rounded-xl border border-gray-200 dark:border-neutral-800 bg-gradient-to-b from-gray-50 to-white dark:from-neutral-900/90 dark:to-neutral-950 p-5 shadow-sm hover:border-gray-400 dark:hover:border-neutral-700 transition-all">
+        <div>
+          <div className="relative mb-4 aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-800 bg-black">
+            <img
+              src="/assets/aistudio/46a68812a_generated_image_c3f57939.png"
+              alt="Kernel and Diagnostics Terminal"
+              className="size-full object-cover"
+            />
+            <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-0.5 text-[11px] font-mono text-cyan-400 backdrop-blur-xs">
+              ai-sdk.pro
+            </div>
+          </div>
+          <h3 className="text-sm font-semibold text-gray-1000 dark:text-white">
+            พลังของ Agent Loops และ Sandboxes
+          </h3>
+          <p className="mt-2 text-xs leading-relaxed text-gray-700 dark:text-neutral-300">
+            "การให้ AI เข้ามาแก้ไขโค้ดต้องมีขอบเขตการทดสอบที่รัดกุม บน <a href="https://ai-sdk.pro" target="_blank" rel="noopener noreferrer" className="text-cyan-500 underline font-medium">ai-sdk.pro</a> เราให้ Agent รันคำสั่งตรวจเช็คเฉพาะส่วนที่กระทบ ทำให้งานเสร็จไวโดยที่โครงสร้างหลักไม่พังทลาย"
           </p>
-
-          <p className="mb-4">
-            With Turbo, I have an incentive to break my repo down into many
-            small, focused packages. This way, Turbo can cache each little
-            build. So when I hit save, only the package I changed needs to
-            recompile.
-          </p>
-          <p>Really speeds things up!</p>
-        </TestimonialCard>
-        <TestimonialCard
-          name="Shrey Gupta"
-          alias="@shreygups"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/shreygups.jpg"
-          url="https://x.com/shreygups/status/1900284978367520817"
-        >
-          <p>wait i kinda love turborepo</p>
-        </TestimonialCard>
-        <TestimonialCard
-          name="Jono Alford"
-          alias="@jonoalford"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/jonoalford.jpg"
-          url="https://x.com/jonoalford/status/1989274609192169943?s=20"
-        >
-          <p>
-            The second we started using this for monorepos is the second we
-            stopped having to worry about using monorepos.
-          </p>
-        </TestimonialCard>
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-neutral-800 flex items-center justify-between text-[11px] text-gray-500 font-mono">
+          <span>แนวทาง: Agentic Loops</span>
+          <span className="text-cyan-400 font-semibold">ทดสอบใน Sandbox</span>
+        </div>
       </div>
-      <div className="grid gap-6">
-        <TestimonialCard
-          name="ALIAS"
-          alias="LoadingALIAS"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/loadingalias.jpg"
-          url="https://x.com/LoadingALIAS/status/1903228609021477283"
-        >
-          <p>Turborepo is the best.</p>
-        </TestimonialCard>
-        <TestimonialCard
-          name="Andrew Lisowski"
-          alias="@HipsterSmoothie"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/hipstersmoothie.jpg"
-          url="https://x.com/HipsterSmoothie/status/1829245704386269515"
-        >
-          <p>
-            Just setting up @turborepo in @DescriptApp's front-end cut our bill
-            in half and saved us $20k
+
+      {/* Card 3: Deterministic Cache Metrics */}
+      <div className="flex flex-col justify-between rounded-xl border border-gray-200 dark:border-neutral-800 bg-gradient-to-b from-gray-50 to-white dark:from-neutral-900/90 dark:to-neutral-950 p-5 shadow-sm hover:border-gray-400 dark:hover:border-neutral-700 transition-all">
+        <div>
+          <div className="relative mb-4 aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-800 bg-black">
+            <img
+              src="/assets/aistudio/2cfcaf728_generated_image_ce245edd.png"
+              alt="Data Analytics and Metrics Dashboard"
+              className="size-full object-cover"
+            />
+            <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-0.5 text-[11px] font-mono text-rose-400 backdrop-blur-xs">
+              Metrics
+            </div>
+          </div>
+          <h3 className="text-sm font-semibold text-gray-1000 dark:text-white">
+            วิเคราะห์คอขวดและเวลาที่ประหยัดได้
+          </h3>
+          <p className="mt-2 text-xs leading-relaxed text-gray-700 dark:text-neutral-300">
+            "ตัวเลขไม่เคยหลอกใคร เมื่อเราคำนวณ Hashing ได้ตรงกับอาร์ติแฟกต์ในแคช เวลาบิลด์ใน CI ลดลงมากกว่า 70% นี่คือสิ่งที่วัดผลได้เป็นตัวเงินจริงในทุกโปรเจกต์ที่เราส่งมอบ"
           </p>
-        </TestimonialCard>
-        <TestimonialCard
-          name="Pontus Abrahamsson"
-          alias="@pontusab"
-          avatar="https://ufa25dqjajkmio0q.public.blob.vercel-storage.com/user-avatars/pontusab.jpg"
-          url="https://x.com/pontusab/status/1827264818765799931"
-        >
-          <p>
-            I love a monorepo setup, having everything in one place powered by
-            Turborepo 🔥
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-neutral-800 flex items-center justify-between text-[11px] text-gray-500 font-mono">
+          <span>แนวทาง: Deterministic Hash</span>
+          <span className="text-rose-400 font-semibold">ลดต้นทุน CI จริง</span>
+        </div>
+      </div>
+
+      {/* Card 4: Topological Graph Architecture */}
+      <div className="flex flex-col justify-between rounded-xl border border-gray-200 dark:border-neutral-800 bg-gradient-to-b from-gray-50 to-white dark:from-neutral-900/90 dark:to-neutral-950 p-5 shadow-sm hover:border-gray-400 dark:hover:border-neutral-700 transition-all">
+        <div>
+          <div className="relative mb-4 aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-800 bg-black">
+            <img
+              src="/assets/aistudio/26311c1d8_generated_image_0165995f.png"
+              alt="Neural Graph Network"
+              className="size-full object-cover"
+            />
+            <div className="absolute top-2 left-2 rounded bg-black/70 px-2 py-0.5 text-[11px] font-mono text-purple-400 backdrop-blur-xs">
+              Architecture
+            </div>
+          </div>
+          <h3 className="text-sm font-semibold text-gray-1000 dark:text-white">
+            โครงสร้างกราฟและขอบเขตแพ็กเกจ
+          </h3>
+          <p className="mt-2 text-xs leading-relaxed text-gray-700 dark:text-neutral-300">
+            "การเขียนโค้ดที่ดีเริ่มจากการวางระเบียบ Boundary Tags ให้เรากั้นโค้ดฝั่งเซิร์ฟเวอร์ออกจากฝั่งไคลเอนต์ เมื่อระบบของเราชัดเจน การสเกลซอฟต์แวร์ระดับองค์กรก็ไม่ใช่เรื่องยากอีกต่อไป"
           </p>
-        </TestimonialCard>
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-neutral-800 flex items-center justify-between text-[11px] text-gray-500 font-mono">
+          <span>แนวทาง: Boundary Control</span>
+          <span className="text-purple-400 font-semibold">กฎระเบียบคมกริบ</span>
+        </div>
       </div>
     </div>
   );

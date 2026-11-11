@@ -198,20 +198,23 @@ export function SmoothMetallicGauge({
     function drawGauge() {
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
+
+      // Sizing matches the exact viewBox (480x340) of the original Turborepo gauge
       const cx = width * 0.5;
-      const cy = height * 0.67;
-      const radius = Math.min(width * 0.41, height * 0.56);
+      const cy = height * 0.69;
+      const radius = Math.min(width * 0.40, height * 0.56);
 
       const outerArcRadius = radius;
-      const outerArcThickness = Math.max(12, radius * 0.078);
+      const outerArcThickness = Math.max(8, radius * 0.058);
       const innerArcRadius = outerArcRadius - outerArcThickness * 0.5;
       const startRad = START_DEG * DEG_TO_RAD;
       const endRad = END_DEG * DEG_TO_RAD;
 
       const activeRatio = state.syncArcWithNeedle ? state.arcLitValue : 0.835;
 
+      // Soft, subtle inner glow (toned down cleanly without heavy bloom)
       const glowSlices = 48;
-      const glowInnerR = radius * 0.42;
+      const glowInnerR = radius * 0.72;
       ctx.save();
       for (let i = 0; i < glowSlices; i++) {
         const t0 = i / glowSlices;
@@ -220,45 +223,48 @@ export function SmoothMetallicGauge({
         const clampedT1 = Math.min(t1, activeRatio);
         const a0 = (START_DEG + TOTAL_SWEEP_DEG * t0) * DEG_TO_RAD;
         const a1 = (START_DEG + TOTAL_SWEEP_DEG * clampedT1) * DEG_TO_RAD + 0.008;
-        const edgeFade = Math.min(1, t0 * 6);
+        const edgeFade = Math.min(1, t0 * 3);
         const grad = ctx.createRadialGradient(
           cx,
           cy,
           glowInnerR,
           cx,
           cy,
-          outerArcRadius * 1.04
+          outerArcRadius * 1.01
         );
         grad.addColorStop(0, getGaugeColorAt(t0, 0));
-        grad.addColorStop(0.55, getGaugeColorAt(t0, 0.06 * edgeFade));
-        grad.addColorStop(0.85, getGaugeColorAt(t0, 0.22 * edgeFade));
-        grad.addColorStop(0.96, getGaugeColorAt(t0, 0.42 * edgeFade));
+        grad.addColorStop(0.75, getGaugeColorAt(t0, 0.015 * edgeFade));
+        grad.addColorStop(0.94, getGaugeColorAt(t0, 0.05 * edgeFade));
         grad.addColorStop(1, getGaugeColorAt(t0, 0));
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, outerArcRadius * 1.04, a0, a1);
+        ctx.arc(cx, cy, outerArcRadius * 1.01, a0, a1);
         ctx.closePath();
         ctx.fillStyle = grad;
         ctx.fill();
       }
       ctx.restore();
 
+      // Base track arc (clean and dark, exactly like Turborepo dark theme)
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, cy, outerArcRadius, startRad, endRad);
-      ctx.strokeStyle = "#1a1b1f";
+      ctx.strokeStyle = "rgba(30, 41, 59, 0.5)";
       ctx.lineWidth = outerArcThickness;
       ctx.stroke();
 
       ctx.beginPath();
       ctx.arc(cx, cy, innerArcRadius, startRad, endRad);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
-      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
 
+      // Lit colored arc
       if (activeRatio > 0.002) {
         const litSlices = 70;
+
+        // Micro-bloom layer (very soft)
         ctx.save();
         ctx.globalCompositeOperation = "screen";
         for (let i = 0; i < litSlices; i++) {
@@ -268,12 +274,13 @@ export function SmoothMetallicGauge({
           const a1 = (START_DEG + TOTAL_SWEEP_DEG * t1) * DEG_TO_RAD + 0.005;
           ctx.beginPath();
           ctx.arc(cx, cy, outerArcRadius, a0, a1);
-          ctx.strokeStyle = getGaugeColorAt(t0, 0.35);
-          ctx.lineWidth = outerArcThickness * 1.65;
+          ctx.strokeStyle = getGaugeColorAt(t0, 0.12);
+          ctx.lineWidth = outerArcThickness * 1.18;
           ctx.stroke();
         }
         ctx.restore();
 
+        // Crisp solid core arc
         ctx.save();
         for (let i = 0; i < litSlices; i++) {
           const t0 = (i / litSlices) * activeRatio;
@@ -282,7 +289,7 @@ export function SmoothMetallicGauge({
           const a1 = (START_DEG + TOTAL_SWEEP_DEG * t1) * DEG_TO_RAD + 0.004;
           ctx.beginPath();
           ctx.arc(cx, cy, outerArcRadius, a0, a1);
-          ctx.strokeStyle = getGaugeColorAt(t0, 1);
+          ctx.strokeStyle = getGaugeColorAt(t0, 0.95);
           ctx.lineWidth = outerArcThickness;
           ctx.stroke();
         }
@@ -307,7 +314,7 @@ export function SmoothMetallicGauge({
           ctx.moveTo(cx + cosA * divInnerR, cy + sinA * divInnerR);
           ctx.lineTo(cx + cosA * divOuterR, cy + sinA * divOuterR);
           ctx.strokeStyle = "#07080a";
-          ctx.lineWidth = Math.max(2.5, radius * 0.014);
+          ctx.lineWidth = Math.max(2, radius * 0.012);
           ctx.stroke();
 
           ctx.beginPath();
@@ -317,18 +324,18 @@ export function SmoothMetallicGauge({
             cy + sinA * (innerArcRadius - 1)
           );
           ctx.strokeStyle =
-            t <= activeRatio ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)";
-          ctx.lineWidth = 1.2;
+            t <= activeRatio ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)";
+          ctx.lineWidth = 1;
           ctx.stroke();
         } else if (!isSegmentBoundary) {
           const tickOuterR = innerArcRadius - radius * 0.02;
-          const tickInnerR = tickOuterR - radius * 0.036;
+          const tickInnerR = tickOuterR - radius * 0.034;
           ctx.beginPath();
           ctx.moveTo(cx + cosA * tickInnerR, cy + sinA * tickInnerR);
           ctx.lineTo(cx + cosA * tickOuterR, cy + sinA * tickOuterR);
           ctx.strokeStyle =
-            t <= activeRatio ? "rgba(255, 255, 255, 0.48)" : "rgba(255, 255, 255, 0.22)";
-          ctx.lineWidth = Math.max(1.25, radius * 0.006);
+            t <= activeRatio ? "rgba(255, 255, 255, 0.42)" : "rgba(255, 255, 255, 0.16)";
+          ctx.lineWidth = Math.max(1, radius * 0.005);
           ctx.lineCap = "round";
           ctx.stroke();
         }
@@ -411,7 +418,7 @@ export function SmoothMetallicGauge({
 
   return (
     <div
-      className={`relative flex items-center justify-center w-full max-w-[480px] aspect-[4/3] ${className}`}
+      className={`relative flex items-center justify-center w-full max-w-[440px] sm:max-w-[480px] aspect-[24/17] ${className}`}
     >
       <canvas
         ref={canvasRef}

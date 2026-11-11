@@ -451,17 +451,8 @@ export default function App() {
 
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-3 flex items-center justify-between font-mono text-xs text-gray-700">
                 <div className="flex items-center gap-2">
-                  <a
-                    href="https://vercel.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="opacity-75 hover:opacity-100 transition-opacity"
-                    title="Powered by Vercel"
-                  >
-                    <VercelLogo className="h-3.5 w-auto" />
-                  </a>
-                  <span className="text-gray-400">/</span>
-                  <span className="sidename text-xs">Turbocharger</span>
+                  <span className="inline-block size-2 rounded-full bg-emerald-500" />
+                  <span className="sidename text-xs font-semibold text-gray-1000 dark:text-neutral-200">Turbocharger Engine</span>
                 </div>
                 <span>v2.11.10 · a575396</span>
               </div>
@@ -566,16 +557,16 @@ export default function App() {
             {route === 'factory' && <FactoryApp />}
 
             {route === 'docs' && (
-              <div className="flex-1 flex flex-col bg-[#090A0F] text-[#F3F4F6]">
+              <div className="flex-1 flex flex-col bg-background-200 text-gray-1000">
                 {/* Sub-navigation bar for Docs, Crates, turbo.json Studio, Boundaries & Runner */}
-                <div className="border-b border-[#1E2230] bg-[#11131A] px-6 py-2.5">
-                  <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-1">
+                <div className="border-b border-gray-300 bg-background-100 px-4 sm:px-6 py-2.5">
+                  <div className="mx-auto flex max-w-[1340px] flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-1 overflow-x-auto">
                       {(
                         [
                           {
                             id: 'crates-docs',
-                            label: 'Crates & Docs (apps/docs/content)',
+                            label: 'Crates & Docs Reference',
                             icon: BookOpen,
                             color: 'text-[#0096FF]',
                           },
@@ -608,15 +599,15 @@ export default function App() {
                             onClick={() => setStudioTab(tab.id)}
                             className={`relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                               isActive
-                                ? 'text-white'
-                                : 'text-[#9CA3AF] hover:text-white'
+                                ? 'text-gray-1000'
+                                : 'text-gray-900 hover:text-gray-1000'
                             }`}
                           >
                             {isActive && (
                               <motion.span
                                 layoutId="studio-subtab-pill"
                                 transition={SMOOTH_SLIDE_TRANSITION}
-                                className="absolute inset-0 rounded-md bg-[#171A24] border border-[#2E3446]"
+                                className="absolute inset-0 rounded-md bg-background-200 border border-gray-300"
                               />
                             )}
                             <Icon
@@ -628,20 +619,32 @@ export default function App() {
                       })}
                     </div>
 
-                    {studioTab === 'runner' && (
-                      <button
-                        type="button"
-                        onClick={() => handleExecuteRun(false)}
-                        className="inline-flex items-center gap-1.5 rounded bg-gradient-to-r from-[#FF1E56] to-[#0096FF] px-3 py-1 text-xs font-semibold text-white cursor-pointer"
+                    <div className="flex items-center gap-2">
+                      <a
+                        href="https://docs.ai-sdk.pro/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 bg-background-200 text-xs font-medium text-gray-1000 hover:border-gray-500 hover:bg-gray-100 transition-colors"
                       >
-                        <Play className="w-3 h-3 fill-current" />
-                        Execute `turbo run {selectedTask}`
-                      </button>
-                    )}
+                        <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>docs.ai-sdk.pro</span>
+                        <ExternalLink className="size-3 text-gray-600" />
+                      </a>
+                      {studioTab === 'runner' && (
+                        <button
+                          type="button"
+                          onClick={() => handleExecuteRun(false)}
+                          className="inline-flex items-center gap-1.5 rounded bg-gray-1000 text-background-100 px-3 py-1 text-xs font-semibold hover:bg-gray-900 cursor-pointer"
+                        >
+                          <Play className="w-3 h-3 fill-current" />
+                          Execute `turbo run {selectedTask}`
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-[calc(100vh-7.5rem)] flex flex-col">
+                <div className="flex-1 min-h-[calc(100vh-7.5rem)] flex flex-col p-4 sm:p-6 max-w-[1340px] mx-auto w-full">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={studioTab}
@@ -742,20 +745,11 @@ export default function App() {
           <div className="mx-auto flex max-w-[1080px] flex-col gap-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <a
-                  href="https://vercel.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="opacity-80 hover:opacity-100 transition-opacity"
-                  title="Vercel"
-                >
-                  <VercelLogo className="h-3.5 w-auto" />
-                </a>
-                <span className="text-gray-400">/</span>
                 <TurborepoLogo className="h-4 w-auto" />
                 <span className="sidename text-sm font-semibold text-gray-1000">Turbocharger</span>
+                <span className="text-gray-400">·</span>
                 <span className="font-mono text-gray-700">
-                  v2.11.10 (commit a575396)
+                  Open Source Engine v2.11.10 (a575396)
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-5">
@@ -846,7 +840,7 @@ export default function App() {
                   href="/llms.txt"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-gray-1000 underline-offset-4 hover:underline font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded text-blue-400"
+                  className="hover:text-gray-1000 underline-offset-4 hover:underline font-mono text-[10px] bg-background-200 border border-gray-300 px-2 py-0.5 rounded text-gray-1000"
                 >
                   llms.txt
                 </a>
