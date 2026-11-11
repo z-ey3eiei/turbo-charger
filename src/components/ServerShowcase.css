@@ -1,0 +1,33 @@
+@property --showcase-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes showcase-orbit { to { --showcase-angle: 360deg; } }
+@keyframes showcase-blink { 50% { opacity: .2; } }
+.server-showcase { position:relative; isolation:isolate; overflow:hidden; border:1px solid #292929; border-radius:20px; background:#070707; color:#f5f5f5; box-shadow:0 24px 70px -50px #b91c1c80; }
+.showcase-grid { position:absolute; inset:0; z-index:-1; pointer-events:none; background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px); background-size:40px 40px; mask-image:linear-gradient(#000, #000 45%,transparent 90%); }
+.showcase-beam { position:absolute; inset:0; border-radius:inherit; padding:1px; pointer-events:none; z-index:2; background:conic-gradient(from var(--showcase-angle),transparent 75%,#ffffff0a 81%,#ffffff60 94%,#fff 99%,transparent); mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; animation:showcase-orbit 7s linear infinite; }
+.showcase-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 24px; border-bottom:1px solid #ffffff0c; }
+.showcase-brand { display:flex; align-items:center; gap:9px; font-weight:650; font-size:14px; }
+.showcase-preview-label { color:#999; font:9px var(--font-mono); letter-spacing:.12em; }
+.showcase-body { padding:48px 24px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; background:radial-gradient(ellipse at bottom,#b91c1c0f,transparent 55%); }
+.showcase-badge { display:flex; align-items:center; gap:7px; padding:5px 12px; border:1px solid #ffffff18; border-radius:99px; background:#101010; font-size:11px; color:#ccc; }
+.showcase-badge i { width:5px; height:5px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444; }
+.showcase-badge span { color:#666; }
+.showcase-body h1 { font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:-.045em; font-weight:700; margin:24px 0 18px; }
+.showcase-body h1 span { color:#a3a3a3; }
+.showcase-body p { max-width:540px; color:#a3a3a3; font-size:14px; line-height:1.7; margin:0 0 28px; }
+.showcase-command { max-width:100%; display:flex; align-items:center; gap:10px; padding:11px 16px; background:#101010; border:1px solid #333; border-radius:99px; cursor:pointer; font-size:12px; color:#ddd; margin-bottom:36px; }
+.showcase-command code { overflow-wrap:anywhere; text-align:left; }
+.showcase-command svg { flex-shrink:0; }
+.showcase-command:hover { border-color:#777; }
+.showcase-command:focus-visible { outline:2px solid #fff; outline-offset:4px; }
+.showcase-terminal { position:relative; width:100%; max-width:680px; border:1px solid #292929; border-radius:14px; overflow:hidden; background:#0d0d0d; text-align:left; box-shadow:0 16px 40px #0008; }
+.showcase-terminal .showcase-beam { animation-duration:5.5s; animation-direction:reverse; }
+.showcase-terminal-bar { display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid #ffffff10; font-size:10px; color:#888; }
+.showcase-terminal-bar>span:first-child { color:#444; letter-spacing:2px; }
+.showcase-terminal-bar>span:last-child { margin-left:auto; font-size:8px; letter-spacing:.05em; }
+.showcase-output { padding:20px; font:12px/1.95 var(--font-mono); color:#ccc; overflow-wrap:anywhere; }
+.showcase-output span { color:#777; margin-right:12px; }
+.showcase-output b { color:#ef4444; }
+.showcase-cursor { display:block; width:7px; height:14px; margin-top:8px; background:#ef4444; animation:showcase-blink 1.1s step-end infinite; }
+.showcase-body small { font-size:10px; color:#888; margin-top:18px; line-height:1.6; }
+@media(max-width:480px) { .showcase-body { padding:32px 16px 20px; } .showcase-topbar { padding:15px 16px; } .showcase-output { padding:16px; font-size:10px; } .showcase-command { font-size:10px; padding:10px 12px; } .showcase-grid { background-size:32px 32px; } }
+@media(prefers-reduced-motion:reduce) { .server-showcase .showcase-beam,.showcase-cursor { animation:none; } }
