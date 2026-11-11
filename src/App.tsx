@@ -43,7 +43,7 @@ import { Server } from 'lucide-react';
 
 type AppRoute =
   | 'home'
-  | 'resolver'
+  | 'ui'
   | 'server-tools'
   | 'devtools'
   | 'factory'
@@ -56,7 +56,7 @@ type StudioSubTab = 'crates-docs' | 'config' | 'boundaries' | 'runner';
 
 const ROUTE_ORDER: AppRoute[] = [
   'home',
-  'resolver',
+  'ui',
   'server-tools',
   'docs',
   'devtools',
@@ -81,7 +81,7 @@ export default function App() {
       if (p === 'about') return 'about';
       if (p === 'contact') return 'contact';
       if (p === 'privacy') return 'privacy';
-      if (p === 'resolver') return 'resolver';
+      if (['resolver', 'Resol', 'ui'].includes(p)) return 'ui';
       if (p === 'server-tools') return 'server-tools';
       if (p === 'devtools') return 'devtools';
       if (p === 'factory') return 'factory';
@@ -94,10 +94,8 @@ export default function App() {
   const [studioTab, setStudioTab] = useState<StudioSubTab>('crates-docs');
   const [isDark, setIsDark] = useState<boolean>(true);
 
-  // Slide-out Side Navigation & Quick Resolver Drawer states
+  // Slide-out side navigation state
   const [isSideNavOpen, setIsSideNavOpen] = useState<boolean>(false);
-  const [isResolverDrawerOpen, setIsResolverDrawerOpen] =
-    useState<boolean>(false);
 
   // Interactive Studio Engine State
   const [selectedPresetId] = useState<string>(MONOREPO_PRESETS[0].id);
@@ -161,6 +159,18 @@ export default function App() {
     }
   }, [isDark]);
 
+  useEffect(() => {
+    if (['/resolver', '/Resol'].includes(window.location.pathname)) {
+      window.history.replaceState({}, '', '/ui');
+    }
+    const onPopState = () => {
+      const path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '') || 'home';
+      setRoute(path === 'resolver' || path === 'Resol' ? 'ui' : ROUTE_ORDER.includes(path as AppRoute) ? path as AppRoute : 'home');
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   const handleExecuteRun = (forceNoCache?: boolean) => {
     setIsRunning(true);
     const nextStatuses: Record<string, 'cache-hit' | 'executed' | 'idle'> = {};
@@ -192,8 +202,8 @@ export default function App() {
 
   const handleNavigate = (target: string) => {
     const nextRoute: AppRoute =
-      target === 'resolver'
-        ? 'resolver'
+      (target === 'ui' || target === 'resolver')
+        ? 'ui'
         : target === 'server-tools'
           ? 'server-tools'
           : target === 'devtools'
@@ -226,7 +236,6 @@ export default function App() {
 
   const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home },
-    { id: 'resolver', label: 'Resolver', icon: Zap },
     { id: 'server-tools', label: 'Server Tools', icon: Server },
     { id: 'docs', label: 'Docs & Crates', icon: BookOpen },
     { id: 'devtools', label: 'Devtools', icon: Layers },
@@ -237,8 +246,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background-100 text-gray-1000 flex flex-col overflow-x-hidden">
       {/* Official Geistdocs + Turbocharger Top Navigation Bar */}
-      <header className="sticky top-0 z-50 h-16 border-b border-gray-200 dark:border-neutral-800 bg-background-100/90 backdrop-blur-md">
-        <div className="mx-auto flex h-full max-w-[1340px] items-center justify-between px-4 sm:px-6">
+      <header className="sticky top-0 z-50 shrink-0 border-b border-gray-200 dark:border-neutral-800 bg-background-100/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1340px] items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-4">
             {/* Slide-out Side Navigation Trigger */}
             <button
@@ -286,9 +295,6 @@ export default function App() {
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-1.5">
-                      {item.id === 'resolver' && (
-                        <Zap className="h-3.5 w-3.5 text-[#FF1E56]" />
-                      )}
                       {item.label}
                     </span>
                   </button>
@@ -298,16 +304,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-          {/* Slide-out Quick Resolver Drawer Button (without duplicate Turbocharger word) */}
-          <button
-            type="button"
-            onClick={() => setIsResolverDrawerOpen((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-gray-200 dark:border-neutral-800 bg-background-200 text-xs font-medium text-gray-1000 hover:border-[#FF1E56] transition-colors cursor-pointer slide-smooth"
-          >
-            <SlidersHorizontal className="h-3.5 w-3.5 text-[#FF1E56]" />
-            <span>Resolver Drawer</span>
-          </button>
-
             <span className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-neutral-800 bg-background-200 px-2.5 py-1 font-mono text-xs text-gray-900">
               <span className="h-1.5 w-1.5 rounded-full bg-[#FF1E56]" />
               v2.11.10 · a575396
@@ -422,31 +418,6 @@ export default function App() {
                   })}
                 </div>
 
-                <div className="rounded-xl border border-gray-200 dark:border-neutral-800 bg-background-200 p-3.5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="sidename text-xs">Turbocharger</span>
-                    <span className="font-mono text-[11px] text-emerald-500">
-                      ONLINE
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-800 dark:text-neutral-400">
-                    DAG Task Graph &amp; UI/UX Slide Resolver active for{' '}
-                    <code className="font-mono text-gray-1000">
-                      {preset.packages.length} packages
-                    </code>
-                    .
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSideNavOpen(false);
-                      setIsResolverDrawerOpen(true);
-                    }}
-                    className="w-full rounded-md bg-gradient-to-r from-[#FF1E56] to-[#0096FF] py-1.5 text-xs font-semibold text-white cursor-pointer"
-                  >
-                    Open Slide Resolver Drawer
-                  </button>
-                </div>
               </div>
 
               <div className="border-t border-gray-200 dark:border-neutral-800 pt-3 flex items-center justify-between font-mono text-xs text-gray-700">
@@ -456,71 +427,6 @@ export default function App() {
                 </div>
                 <span>v2.11.10 · a575396</span>
               </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Right Slide-Out Quick Resolver Drawer */}
-      <AnimatePresence>
-        {isResolverDrawerOpen && (
-          <>
-            <motion.div
-              key="resolver-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              onClick={() => setIsResolverDrawerOpen(false)}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs"
-            />
-            <motion.aside
-              key="resolver-drawer"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={SMOOTH_SLIDE_TRANSITION}
-              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-2xl border-l border-gray-200 dark:border-neutral-800 bg-background-200 overflow-y-auto shadow-2xl"
-            >
-              <div className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 dark:border-neutral-800 bg-background-100/95 backdrop-blur-md px-5 py-3.5">
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="h-4 w-4 text-[#FF1E56]" />
-                  <span className="sidename text-base">Turbocharger</span>
-                  <span className="text-xs font-mono text-gray-800 dark:text-neutral-400">
-                    Quick Slide Resolver Drawer
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsResolverDrawerOpen(false);
-                      handleNavigate('resolver');
-                    }}
-                    className="rounded-md border border-gray-200 dark:border-neutral-800 bg-background-200 px-2.5 py-1 text-xs font-medium text-gray-1000 hover:border-[#0096FF] cursor-pointer"
-                  >
-                    Expand Full View
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsResolverDrawerOpen(false)}
-                    className="rounded-md p-1.5 text-gray-800 hover:text-gray-1000 cursor-pointer"
-                    aria-label="Close Resolver Drawer"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <TurbochargerResolver
-                preset={preset}
-                graph={graph}
-                compactDrawer
-                onNavigateRoute={(target) => {
-                  setIsResolverDrawerOpen(false);
-                  handleNavigate(target);
-                }}
-              />
             </motion.aside>
           </>
         )}
@@ -540,7 +446,7 @@ export default function App() {
           >
             {route === 'home' && <HomePage onNavigate={handleNavigate} />}
 
-            {route === 'resolver' && (
+            {route === 'ui' && (
               <TurbochargerResolver
                 preset={preset}
                 graph={graph}
@@ -762,13 +668,6 @@ export default function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleNavigate('resolver')}
-                  className="hover:text-gray-1000 cursor-pointer"
-                >
-                  Resolver
-                </button>
-                <button
-                  type="button"
                   onClick={() => handleNavigate('server-tools')}
                   className="hover:text-gray-1000 cursor-pointer"
                 >
@@ -814,6 +713,7 @@ export default function App() {
                 >
                   About Us
                 </button>
+                <a href="/ui" onClick={(event) => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); handleNavigate('ui'); } }} className="hover:text-gray-1000 underline-offset-4 hover:underline">UI Library</a>
                 <button
                   type="button"
                   onClick={() => handleNavigate('contact')}

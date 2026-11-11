@@ -20,6 +20,7 @@ import {
   ChevronRight,
   ChevronLeft,
 } from 'lucide-react';
+import { BrandReference } from './BrandReference';
 import { MonorepoPreset } from '../data/turborepoData';
 import { TaskGraphResult, deterministicHexHash } from '../engine/turboEngine';
 
@@ -314,7 +315,7 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
   onNavigateRoute,
   compactDrawer = false,
 }) => {
-  const [activeMode, setActiveMode] = useState<'resolver' | 'ux-motion'>('resolver');
+  const [activeMode, setActiveMode] = useState<'resolver' | 'ux-motion'>('ux-motion');
   const [queryInput, setQueryInput] = useState<string>('@repo/ui/button');
   const [selectedTargetId, setSelectedTargetId] = useState<string>('ui-button');
   const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
@@ -505,20 +506,16 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
                 <span className="sidename text-sm">Turbocharger</span>
               </span>
               <span className="font-mono text-xs text-gray-800 dark:text-neutral-400">
-                UI/UX &amp; DAG Dependency Resolver · v2.11.10
+                UI Library · Design reference
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-1000">
               <span className="sidename mr-2">Turbocharger</span>
-              UI/UX Smooth Slide Resolver
+              UI Library
             </h1>
             <p className="max-w-2xl text-sm text-gray-900 dark:text-neutral-400">
-              Inspect real-time workspace module resolution, topological task waves,
-              and interactive smooth-slide motion curves across{' '}
-              <code className="font-mono text-xs text-gray-1000">
-                z-ey3eiei/Turborepo
-              </code>
-              .
+              ตัวอย่างสี โลโก้ และการเคลื่อนไหวของ UI ทดลองและคัดลอกไปใช้เป็น Reference ได้
+              ตัวอย่างในหน้านี้ทำงานในเบราว์เซอร์ ไม่ได้เชื่อมต่อหรือรันงานบน repository จริง
             </p>
           </div>
 
@@ -528,12 +525,12 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
               [
                 {
                   id: 'resolver',
-                  label: 'Module & DAG Resolver',
+                  label: 'Pipeline UI Example',
                   icon: Layers,
                 },
                 {
                   id: 'ux-motion',
-                  label: 'UI/UX Slide Animator',
+                  label: 'Motion Playground',
                   icon: SlidersHorizontal,
                 },
               ] as const
@@ -571,8 +568,10 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
         </div>
       </div>
 
+      <BrandReference />
+
       {/* Mode Content with Smooth Slide Transition */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false} mode="wait">
         {activeMode === 'resolver' ? (
           <motion.div
             key="mode-resolver"
@@ -952,7 +951,7 @@ export const TurbochargerResolver: React.FC<TurbochargerResolverProps> = ({
               <div className="rounded-xl border border-gray-200 dark:border-neutral-800 bg-background-100 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-gray-1000">
-                    Slide Physics &amp; Curve Resolver
+                    Slide Physics &amp; Curves
                   </h3>
                   <span className="sidename text-xs">Turbocharger</span>
                 </div>

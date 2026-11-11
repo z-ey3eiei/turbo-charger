@@ -63,7 +63,7 @@ const diag = runTurboDiagnostics();
 - Contact: https://turbocharger-iota.vercel.app/contact
 - Privacy Policy: https://turbocharger-iota.vercel.app/privacy
 - Full Documentation: https://turbocharger-iota.vercel.app/docs
-- Resolver Studio: https://turbocharger-iota.vercel.app/resolver
+- UI Library: https://docs.ai-sdk.pro/ui
 - Devtools Graph: https://turbocharger-iota.vercel.app/devtools
 - Factory Image: https://turbocharger-iota.vercel.app/factory
 - Showcase: https://turbocharger-iota.vercel.app/showcase
